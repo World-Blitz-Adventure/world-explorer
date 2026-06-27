@@ -11,11 +11,11 @@ function getWorker() {
   if (worker === null && typeof Worker !== 'undefined') {
     worker = new Worker(new URL('../terrain/terrainWorker.js', import.meta.url), { type: 'module' });
     worker.onmessage = (e) => {
-      const { id, positions, colors, indices } = e.data;
+      const { id, positions, colors, uvs, indices } = e.data;
       const resolve = waiting.get(id);
       if (resolve) {
         waiting.delete(id);
-        resolve({ positions, colors, indices });
+        resolve({ positions, colors, uvs, indices });
       }
     };
   }

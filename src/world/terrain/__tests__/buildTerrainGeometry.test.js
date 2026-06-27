@@ -16,6 +16,7 @@ describe('buildTerrainGeometry', () => {
     const g = buildTerrainGeometry(constHeightmap(4, 100), 4, BOX, grid);
     expect(g.positions.length).toBe(grid * grid * 3);
     expect(g.colors.length).toBe(grid * grid * 3);
+    expect(g.uvs.length).toBe(grid * grid * 2);
     expect(g.indices.length).toBe((grid - 1) * (grid - 1) * 6);
   });
 

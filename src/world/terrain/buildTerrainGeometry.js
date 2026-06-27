@@ -2,6 +2,8 @@ import { makeProjection } from '../../core/geo/projection.js';
 import { bilinearSample } from '../../data/elevation/sample.js';
 import { biomeColor } from './biome.js';
 
+const TEXTURE_REPEAT_M = 16; // ground detail texture tiles every ~16 m
+
 /**
  * Build indexed terrain geometry in tile-local metres (offsets from box.nw).
  * No world origin here: the mesh is positioned in world space by the caller,
@@ -11,6 +13,7 @@ export function buildTerrainGeometry(heightmap, size, box, grid) {
   const proj = makeProjection(box.nw);
   const positions = new Float32Array(grid * grid * 3);
   const colors = new Float32Array(grid * grid * 3);
+  const uvs = new Float32Array(grid * grid * 2);
   const latitude = (box.nw.lat + box.se.lat) / 2;
 
   const elevAt = (i, j) => {
@@ -35,6 +38,10 @@ export function buildTerrainGeometry(heightmap, size, box, grid) {
       positions[idx] = east;
       positions[idx + 1] = elev;
       positions[idx + 2] = -north;
+
+      const uvIdx = (j * grid + i) * 2;
+      uvs[uvIdx] = east / TEXTURE_REPEAT_M;
+      uvs[uvIdx + 1] = north / TEXTURE_REPEAT_M;
 
       const dEdx =
         (elevAt(Math.min(grid - 1, i + 1), j) - elevAt(Math.max(0, i - 1), j)) / (2 * dx);
@@ -61,5 +68,5 @@ export function buildTerrainGeometry(heightmap, size, box, grid) {
       indices[k++] = b; indices[k++] = c; indices[k++] = d;
     }
   }
-  return { positions, colors, indices };
+  return { positions, colors, uvs, indices };
 }
