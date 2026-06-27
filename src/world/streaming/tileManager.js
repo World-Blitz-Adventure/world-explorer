@@ -1,11 +1,7 @@
 import { tileForLonLat, lonLatForTile } from '../../core/geo/tile.js';
 import { buildTerrainGeometry } from '../terrain/buildTerrainGeometry.js';
 import { createTerrainMesh, disposeTerrainMesh } from '../terrain/terrainMesh.js';
-import { scatterForTile } from '../terrain/scatter.js';
-import { createScatterGroup, disposeScatterGroup } from '../terrain/scatterMesh.js';
 import { tilesAround } from './tiles.js';
-
-const SCATTER_ATTEMPTS = 260; // placement tries per tile (many are filtered out)
 
 // One worker, promise-keyed by id. Falls back to a sync build if Worker is absent.
 let worker = null;
@@ -37,9 +33,9 @@ function buildGeometryAsync(heightmap, size, box, grid) {
   });
 }
 
-/** Streams terrain tiles (+ scattered trees/rocks) around the player. */
+/** Streams terrain tiles around the player; evicts the rest; rebases on demand. */
 export function createTileManager({ scene, elevation, worldFrame, zoom, radius, grid }) {
-  const loaded = new Map(); // key -> { mesh, scatter }
+  const loaded = new Map(); // key -> mesh
   const inflight = new Set();
   const keyFor = (t) => `${t.z}/${t.x}/${t.y}`;
 
@@ -51,20 +47,14 @@ export function createTileManager({ scene, elevation, worldFrame, zoom, radius, 
       const { size, heightmap } = await elevation.getTile(t.z, t.x, t.y);
       const nw = lonLatForTile(t.x, t.y, t.z);
       const se = lonLatForTile(t.x + 1, t.y + 1, t.z);
-      const box = { nw, se };
-      const geo = await buildGeometryAsync(heightmap, size, box, grid);
+      const geo = await buildGeometryAsync(heightmap, size, { nw, se }, grid);
       if (loaded.has(key)) return; // raced; keep the existing one
 
       const mesh = createTerrainMesh(geo);
       const wp = worldFrame.toWorld(nw);
       mesh.position.set(wp.x, wp.y, wp.z);
-
-      const scatterList = scatterForTile(heightmap, size, box, SCATTER_ATTEMPTS, t.x * 1000 + t.y);
-      const scatter = createScatterGroup(scatterList);
-      scatter.position.copy(mesh.position);
-
-      scene.add(mesh, scatter);
-      loaded.set(key, { mesh, scatter });
+      scene.add(mesh);
+      loaded.set(key, mesh);
     } catch (err) {
       console.error('tile load failed', key, err);
     } finally {
@@ -78,21 +68,18 @@ export function createTileManager({ scene, elevation, worldFrame, zoom, radius, 
       const needed = tilesAround(center, radius, zoom);
       const neededKeys = new Set(needed.map(keyFor));
       needed.forEach(load);
-      for (const [key, entry] of loaded) {
+      for (const [key, mesh] of loaded) {
         if (!neededKeys.has(key)) {
-          scene.remove(entry.mesh, entry.scatter);
-          disposeTerrainMesh(entry.mesh);
-          disposeScatterGroup(entry.scatter);
+          scene.remove(mesh);
+          disposeTerrainMesh(mesh);
           loaded.delete(key);
         }
       }
     },
     applyRebase(shift) {
-      for (const { mesh, scatter } of loaded.values()) {
+      for (const mesh of loaded.values()) {
         mesh.position.x += shift.x;
         mesh.position.z += shift.z;
-        scatter.position.x += shift.x;
-        scatter.position.z += shift.z;
       }
     },
     get count() {
