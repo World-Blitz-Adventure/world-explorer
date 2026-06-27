@@ -29,15 +29,38 @@ describe('locomotion', () => {
     expect(haversine(run.position, START)).toBeGreaterThan(haversine(walk.position, START));
   });
 
-  it('enters the car only when close, then drives faster', () => {
+  it('enters the car only when close, then drives much farther than walking', () => {
     const loco = createLocomotion({ start: START });
-    loco.update(1, { forward: 1, turn: 0 }); // walk ~2.5 m away (< 12 m)
+    loco.update(0.5, { forward: 1, turn: 0 }); // walk ~1 m away (< 12 m)
     loco.enterCar();
     expect(loco.mode).toBe('DRIVING');
     expect(loco.inCar).toBe(true);
     const before = haversine(loco.position, START);
-    loco.update(1, { forward: 1, turn: 0 });
-    expect(haversine(loco.position, START) - before).toBeGreaterThan(20); // drive speed
+    for (let i = 0; i < 40; i++) loco.update(0.1, { forward: 1, turn: 0 }); // drive 4 s
+    expect(haversine(loco.position, START) - before).toBeGreaterThan(40); // far beyond walking
+  });
+
+  it('builds speed gradually (inertia) instead of snapping to top speed', () => {
+    const loco = createLocomotion({ start: START });
+    loco.enterCar();
+    loco.update(0.1, { forward: 1, turn: 0 });
+    const early = loco.speed;
+    for (let i = 0; i < 50; i++) loco.update(0.1, { forward: 1, turn: 0 });
+    const late = loco.speed;
+    expect(early).toBeGreaterThan(0);
+    expect(early).toBeLessThan(late); // still accelerating early on
+    expect(late).toBeGreaterThan(20); // approaches drive top speed
+  });
+
+  it('coasts to a stop when input is released while driving', () => {
+    const loco = createLocomotion({ start: START });
+    loco.enterCar();
+    for (let i = 0; i < 50; i++) loco.update(0.1, { forward: 1, turn: 0 });
+    const moving = loco.speed;
+    for (let i = 0; i < 80; i++) loco.update(0.1, { forward: 0, turn: 0 });
+    expect(moving).toBeGreaterThan(5);
+    expect(loco.speed).toBeLessThan(moving); // decelerated on its own
+    expect(loco.speed).toBeCloseTo(0, 1); // came to rest
   });
 
   it('cannot enter the car from far away', () => {
