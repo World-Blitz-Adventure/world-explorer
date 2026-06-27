@@ -29,6 +29,7 @@ const follow = createFollowCamera(camera);
 // Controls: WASD / ZQSD / arrows to move, drag to orbit, F enter/exit car,
 // R recall car, Shift toggles run.
 let orbit = 0;
+let pitch = 0.35; // vertical look; raised by dragging down, lowered by dragging up
 const keys = new Set();
 addEventListener('keydown', (e) => {
   if (e.repeat) return;
@@ -43,7 +44,10 @@ let dragging = false;
 canvas.addEventListener('pointerdown', () => (dragging = true));
 addEventListener('pointerup', () => (dragging = false));
 addEventListener('pointermove', (e) => {
-  if (dragging) orbit += e.movementX * 0.005;
+  if (!dragging) return;
+  orbit += e.movementX * 0.005;
+  pitch += e.movementY * 0.004; // drag down → look down at feet; up → toward horizon
+  pitch = Math.max(-0.5, Math.min(1.2, pitch));
 });
 
 // Preload the start tile so we spawn on the ground, not in the sky.
@@ -84,7 +88,7 @@ function frame(now) {
   const cw = worldFrame.toWorld(carLL);
   avatars.setCar({ x: cw.x, y: carGroundY != null ? carGroundY : lastGroundY, z: cw.z }, loco.heading);
 
-  follow.update({ target, headingRad: loco.heading, mode: loco.mode, groundY: lastGroundY, orbit, dt });
+  follow.update({ target, headingRad: loco.heading, mode: loco.mode, groundY: lastGroundY, orbit, pitch, dt });
 
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
