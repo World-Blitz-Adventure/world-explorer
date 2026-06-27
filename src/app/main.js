@@ -64,7 +64,10 @@ function frame(now) {
 
   tiles.update(loco.position);
   const shift = worldFrame.maybeRebase(loco.position);
-  if (shift) tiles.applyRebase(shift);
+  if (shift) {
+    tiles.applyRebase(shift);
+    follow.shift(shift);
+  }
 
   const groundY = elevation.heightAtCached(loco.position.lat, loco.position.lon);
   if (groundY != null) lastGroundY = groundY;
@@ -81,7 +84,7 @@ function frame(now) {
   const cw = worldFrame.toWorld(carLL);
   avatars.setCar({ x: cw.x, y: carGroundY != null ? carGroundY : lastGroundY, z: cw.z }, loco.heading);
 
-  follow.update({ target, headingRad: loco.heading, mode: loco.mode, groundY: lastGroundY, orbit });
+  follow.update({ target, headingRad: loco.heading, mode: loco.mode, groundY: lastGroundY, orbit, dt });
 
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
