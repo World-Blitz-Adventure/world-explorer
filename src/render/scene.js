@@ -8,7 +8,7 @@ export function createScene({ canvas }) {
   const scene = new THREE.Scene();
   const sky = new THREE.Color(0x9fc9ff);
   scene.background = sky;
-  scene.fog = new THREE.Fog(sky, 2000, 11000);
+  scene.fog = new THREE.Fog(sky, 2500, 20000);
 
   const camera = new THREE.PerspectiveCamera(60, 1, 1, 40000);
   camera.position.set(0, 600, 800);

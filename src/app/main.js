@@ -4,10 +4,13 @@ import { makeProjection } from '../core/geo/index.js';
 import { createElevationSource, loadTerrariumTile } from '../data/elevation/index.js';
 import { createTileManager } from '../world/streaming/tileManager.js';
 
-const START = { lat: 6.1725, lon: 1.2314 }; // Lomé, Togo
+// Temporary demo start with dramatic real relief (Mont Blanc, Alps) so the
+// terrain can be judged on more than flat coastal plain. The real start point
+// (geolocation / your own choice) arrives with the start-anywhere layer.
+const START = { lat: 45.8326, lon: 6.8652 };
 const ZOOM = 12;
 const RADIUS = 3;
-const GRID = 65;
+const GRID = 97;
 
 const canvas = document.createElement('canvas');
 canvas.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;display:block';
@@ -22,7 +25,10 @@ const tiles = createTileManager({ scene, elevation, worldFrame, zoom: ZOOM, radi
 const player = { ...START };
 let yaw = 0; // radians, 0 = looking north
 const keys = new Set();
-addEventListener('keydown', (e) => keys.add(e.code));
+addEventListener('keydown', (e) => {
+  keys.add(e.code);
+  if (e.code.startsWith('Arrow')) e.preventDefault(); // don't scroll the page
+});
 addEventListener('keyup', (e) => keys.delete(e.code));
 let dragging = false;
 canvas.addEventListener('pointerdown', () => (dragging = true));
@@ -38,12 +44,13 @@ function frame(now) {
   prev = now;
 
   // Move the player across the real surface.
-  const speed = keys.has('ShiftLeft') ? 1200 : 400; // m/s
+  const speed = keys.has('ShiftLeft') || keys.has('ShiftRight') ? 1200 : 400; // m/s
   let fwd = 0;
-  if (keys.has('KeyW')) fwd += 1;
-  if (keys.has('KeyS')) fwd -= 1;
-  if (keys.has('KeyA')) yaw -= 1.5 * dt;
-  if (keys.has('KeyD')) yaw += 1.5 * dt;
+  // QWERTY (WASD), AZERTY (ZQSD), and arrow keys all work.
+  if (keys.has('KeyW') || keys.has('KeyZ') || keys.has('ArrowUp')) fwd += 1;
+  if (keys.has('KeyS') || keys.has('ArrowDown')) fwd -= 1;
+  if (keys.has('KeyA') || keys.has('KeyQ') || keys.has('ArrowLeft')) yaw -= 1.5 * dt;
+  if (keys.has('KeyD') || keys.has('ArrowRight')) yaw += 1.5 * dt;
   if (fwd !== 0) {
     const east = Math.sin(yaw) * fwd * speed * dt;
     const north = Math.cos(yaw) * fwd * speed * dt;
@@ -62,10 +69,10 @@ function frame(now) {
   if (groundY != null) lastGroundY = groundY;
   const fx = Math.sin(yaw);
   const fz = -Math.cos(yaw);
-  const back = 350;
-  const height = 220;
+  const back = 600;
+  const height = 420;
   camera.position.set(pw.x - fx * back, lastGroundY + height, pw.z - fz * back);
-  camera.lookAt(pw.x + fx * back, lastGroundY + 40, pw.z + fz * back);
+  camera.lookAt(pw.x + fx * back, lastGroundY + 20, pw.z + fz * back);
 
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
