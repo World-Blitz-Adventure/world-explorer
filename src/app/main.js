@@ -8,9 +8,9 @@ import { createTileManager } from '../world/streaming/tileManager.js';
 // terrain can be judged on more than flat coastal plain. The real start point
 // (geolocation / your own choice) arrives with the start-anywhere layer.
 const START = { lat: 45.8326, lon: 6.8652 };
-const ZOOM = 12;
+const ZOOM = 13;
 const RADIUS = 3;
-const GRID = 97;
+const GRID = 129;
 
 const canvas = document.createElement('canvas');
 canvas.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;display:block';
@@ -69,10 +69,17 @@ function frame(now) {
   if (groundY != null) lastGroundY = groundY;
   const fx = Math.sin(yaw);
   const fz = -Math.cos(yaw);
-  const back = 600;
-  const height = 420;
-  camera.position.set(pw.x - fx * back, lastGroundY + height, pw.z - fz * back);
-  camera.lookAt(pw.x + fx * back, lastGroundY + 20, pw.z + fz * back);
+  const back = 500;
+  const height = 380;
+  const cx = pw.x - fx * back;
+  const cz = pw.z - fz * back;
+  // Keep the camera above the terrain at its own location (never under ground).
+  const camLL = makeProjection(worldFrame.origin).toLatLon(cx, -cz);
+  const camGround = elevation.heightAtCached(camLL.lat, camLL.lon);
+  let cy = lastGroundY + height;
+  if (camGround != null) cy = Math.max(cy, camGround + 80);
+  camera.position.set(cx, cy, cz);
+  camera.lookAt(pw.x + fx * back, lastGroundY + 30, pw.z + fz * back);
 
   renderer.render(scene, camera);
   requestAnimationFrame(frame);

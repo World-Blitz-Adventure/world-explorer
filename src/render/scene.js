@@ -13,10 +13,11 @@ export function createScene({ canvas }) {
   const camera = new THREE.PerspectiveCamera(60, 1, 1, 40000);
   camera.position.set(0, 600, 800);
 
-  const sun = new THREE.DirectionalLight(0xffffff, 2.4);
-  sun.position.set(-1, 2, 1);
+  const sun = new THREE.DirectionalLight(0xfff4e0, 2.9);
+  sun.position.set(-1, 1.6, 0.8);
   scene.add(sun);
-  scene.add(new THREE.HemisphereLight(0xbfe3ff, 0x47553c, 1.0));
+  // Lower fill so slopes keep contrast and the relief reads crisply.
+  scene.add(new THREE.HemisphereLight(0xbfe3ff, 0x47553c, 0.55));
 
   function resize() {
     const w = canvas.clientWidth || window.innerWidth;
