@@ -62,6 +62,9 @@ export function createElevationSource(opts = {}) {
     async prefetch(tiles) {
       await Promise.all(tiles.map(({ x, y, z }) => ensureTile(z, x, y)));
     },
+    getTile(z, x, y) {
+      return ensureTile(z, x, y);
+    },
     get cacheSize() {
       return cache.size;
     },

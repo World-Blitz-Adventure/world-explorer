@@ -65,4 +65,13 @@ describe('elevation source', () => {
     await src.prefetch([{ x: 1, y: 1, z: 5 }, { x: 2, y: 1, z: 5 }]);
     expect(src.cacheSize).toBe(2);
   });
+
+  it('exposes a decoded tile via getTile', async () => {
+    const src = createElevationSource({ loadTile: async () => makeTile(8, 42) });
+    const tile = await src.getTile(5, 1, 1);
+    expect(tile.size).toBe(8);
+    expect(tile.heightmap).toBeInstanceOf(Float32Array);
+    expect(tile.heightmap.length).toBe(64);
+    expect(tile.heightmap[0]).toBeCloseTo(42, 3);
+  });
 });
