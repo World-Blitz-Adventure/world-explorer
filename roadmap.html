@@ -6,100 +6,68 @@
     <title>World Explorer — Roadmap</title>
     <style>
       :root {
-        --bg: #0e1014;
-        --panel: #16191f;
-        --panel-2: #1c2027;
-        --line: #272d38;
-        --text: #e8ebf1;
-        --muted: #99a2b2;
-        --done: #34d399;
-        --doing: #f5b14c;
-        --todo: #5b6472;
-        --accent: #6ee7b7;
-        --shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 8px 30px rgba(0, 0, 0, 0.35);
+        --bg: #0e1014; --panel: #16191f; --panel-2: #1c2027; --line: #272d38;
+        --text: #e8ebf1; --muted: #99a2b2; --done: #34d399; --doing: #f5b14c;
+        --todo: #5b6472; --accent: #6ee7b7; --core: #6ee7b7; --stretch: #f5b14c; --asp: #a78bfa;
+        --shadow: 0 1px 0 rgba(255,255,255,.03), 0 8px 30px rgba(0,0,0,.35);
       }
       * { box-sizing: border-box; }
       html, body { margin: 0; background: var(--bg); }
-      body {
-        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-        color: var(--text);
-        line-height: 1.5;
-        -webkit-font-smoothing: antialiased;
-        padding: 0 0 80px;
-      }
-      .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
-
-      header {
-        position: sticky; top: 0; z-index: 5;
-        background: linear-gradient(180deg, rgba(14,16,20,0.98), rgba(14,16,20,0.85));
-        backdrop-filter: blur(8px);
-        border-bottom: 1px solid var(--line);
-        padding: 22px 0 16px;
-      }
+      body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; padding: 0 0 80px; }
+      .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+      header { position: sticky; top: 0; z-index: 5; background: linear-gradient(180deg, rgba(14,16,20,.98), rgba(14,16,20,.85)); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: 22px 0 16px; }
       .title { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-      h1 {
-        font-size: 22px; margin: 0; letter-spacing: 0.04em; font-weight: 700;
-      }
+      h1 { font-size: 22px; margin: 0; letter-spacing: .04em; font-weight: 700; }
       h1 .glyph { color: var(--accent); }
       .sub { color: var(--muted); font-size: 13px; }
       .bar-wrap { margin-top: 14px; display: flex; align-items: center; gap: 14px; }
       .bar { flex: 1; height: 8px; border-radius: 99px; background: var(--panel-2); overflow: hidden; border: 1px solid var(--line); }
       .bar > i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--done), var(--accent)); transition: width .4s ease; }
-      .pct { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted); min-width: 92px; text-align: right; }
+      .pct { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted); min-width: 96px; text-align: right; }
+      .legend { margin-top: 12px; display: flex; gap: 16px; flex-wrap: wrap; font-size: 11.5px; color: var(--muted); }
+      .legend b { font-weight: 600; }
+      .legend .core { color: var(--core); } .legend .stretch { color: var(--stretch); } .legend .asp { color: var(--asp); }
       .filters { margin-top: 14px; display: flex; gap: 8px; }
-      .filters button {
-        background: var(--panel); color: var(--muted); border: 1px solid var(--line);
-        padding: 6px 12px; border-radius: 99px; font-size: 12px; cursor: pointer; transition: .15s;
-      }
+      .filters button { background: var(--panel); color: var(--muted); border: 1px solid var(--line); padding: 6px 12px; border-radius: 99px; font-size: 12px; cursor: pointer; transition: .15s; }
       .filters button:hover { color: var(--text); }
       .filters button.on { color: var(--bg); background: var(--accent); border-color: var(--accent); font-weight: 600; }
-
       .phase { margin-top: 34px; }
       .phase-head { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
-      .phase-head h2 { font-size: 15px; margin: 0; letter-spacing: 0.02em; }
-      .phase-head .mini { flex: 1; height: 5px; border-radius: 99px; background: var(--panel-2); overflow: hidden; max-width: 220px; }
+      .phase-head h2 { font-size: 15px; margin: 0; letter-spacing: .02em; }
+      .phase-head .mini { flex: 1; height: 5px; border-radius: 99px; background: var(--panel-2); overflow: hidden; max-width: 200px; }
       .phase-head .mini > i { display: block; height: 100%; background: var(--done); transition: width .4s; }
       .phase-head .count { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
       .phase-note { color: var(--muted); font-size: 12.5px; margin: 0 0 14px; }
-
-      .card {
-        background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
-        margin: 10px 0; box-shadow: var(--shadow); overflow: hidden;
-      }
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; margin: 10px 0; box-shadow: var(--shadow); overflow: hidden; }
       .card.hide { display: none; }
-      .row { display: flex; gap: 14px; padding: 16px 18px; align-items: flex-start; cursor: pointer; }
-      .check {
-        width: 22px; height: 22px; border-radius: 7px; border: 2px solid var(--todo);
-        flex: none; margin-top: 1px; display: grid; place-items: center; transition: .15s; background: transparent;
-      }
+      .row { display: flex; gap: 14px; padding: 15px 18px; align-items: flex-start; cursor: pointer; }
+      .check { width: 22px; height: 22px; border-radius: 7px; border: 2px solid var(--todo); flex: none; margin-top: 1px; display: grid; place-items: center; transition: .15s; background: transparent; }
       .check svg { width: 13px; height: 13px; opacity: 0; transform: scale(.6); transition: .15s; }
       .card.done .check { background: var(--done); border-color: var(--done); }
       .card.done .check svg { opacity: 1; transform: scale(1); }
       .main { flex: 1; min-width: 0; }
-      .head-line { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-      .id { font-size: 11px; font-weight: 700; letter-spacing: .06em; color: var(--muted); font-variant-numeric: tabular-nums; }
-      .name { font-weight: 600; font-size: 15px; }
+      .head-line { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+      .name { font-weight: 600; font-size: 14.5px; }
       .card.done .name { color: var(--muted); }
-      .pill { font-size: 10.5px; font-weight: 700; letter-spacing: .05em; padding: 2px 8px; border-radius: 99px; text-transform: uppercase; }
+      .tier { font-size: 10px; padding: 1px 7px; border-radius: 99px; border: 1px solid; letter-spacing: .03em; }
+      .tier.core { color: var(--core); border-color: rgba(110,231,183,.3); }
+      .tier.stretch { color: var(--stretch); border-color: rgba(245,177,76,.3); }
+      .tier.asp { color: var(--asp); border-color: rgba(167,139,250,.3); }
+      .pill { font-size: 10px; font-weight: 700; letter-spacing: .05em; padding: 2px 8px; border-radius: 99px; text-transform: uppercase; }
       .pill.done { color: var(--done); background: rgba(52,211,153,.12); }
       .pill.doing { color: var(--doing); background: rgba(245,177,76,.12); }
       .pill.todo { color: var(--todo); background: rgba(91,100,114,.14); }
       .desc { color: var(--muted); font-size: 13px; margin-top: 4px; }
       .chev { color: var(--muted); flex: none; transition: .2s; margin-top: 2px; }
       .card.open .chev { transform: rotate(90deg); }
-
       .detail { display: none; padding: 0 18px 18px 54px; }
       .card.open .detail { display: block; }
-      .detail .bar-label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
-      .detail blockquote {
-        margin: 6px 0 14px; padding: 10px 14px; border-left: 2px solid var(--accent);
-        background: var(--panel-2); border-radius: 0 8px 8px 0; color: var(--text); font-size: 13.5px;
-      }
+      .detail .bl { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+      .detail blockquote { margin: 6px 0 14px; padding: 10px 14px; border-left: 2px solid var(--accent); background: var(--panel-2); border-radius: 0 8px 8px 0; color: var(--text); font-size: 13.5px; }
       .detail ul { margin: 0; padding-left: 18px; }
       .detail li { color: var(--muted); font-size: 13px; margin: 4px 0; }
-
       footer { margin-top: 40px; color: var(--muted); font-size: 12px; text-align: center; }
-      footer a, .reset { color: var(--muted); cursor: pointer; text-decoration: underline; background: none; border: none; font: inherit; }
+      .reset { color: var(--muted); cursor: pointer; text-decoration: underline; background: none; border: none; font: inherit; }
     </style>
   </head>
   <body>
@@ -107,11 +75,17 @@
       <div class="wrap">
         <div class="title">
           <h1><span class="glyph">◢</span> WORLD EXPLORER</h1>
-          <span class="sub">Roadmap vers « niveau GTA, style Slow Roads » — une tâche à la fois, exceptionnellement bien</span>
+          <span class="sub">Roadmap complète — cible GTA / Red Dead, style Slow Roads, sur la vraie Terre</span>
         </div>
         <div class="bar-wrap">
           <div class="bar"><i id="overall"></i></div>
           <div class="pct" id="overallPct">0 / 0 · 0%</div>
+        </div>
+        <div class="legend">
+          Ambition :
+          <span><b class="core">● Core</b> on vise ça</span>
+          <span><b class="stretch">● Stretch</b> ambitieux mais jouable</span>
+          <span><b class="asp">● Rêve</b> aspirationnel, à voir</span>
         </div>
         <div class="filters">
           <button data-f="all" class="on">Tout</button>
@@ -120,141 +94,96 @@
         </div>
       </div>
     </header>
-
     <main class="wrap" id="board"></main>
-
-    <footer class="wrap">
-      Tableau interactif — ton avancement est sauvegardé dans ce navigateur.
-      <button class="reset" id="reset">réinitialiser</button>
-    </footer>
+    <footer class="wrap">Tableau interactif — ton avancement est sauvegardé dans ce navigateur. <button class="reset" id="reset">réinitialiser</button></footer>
 
     <script>
+      const T = { C: 'core', S: 'stretch', A: 'asp' };
       const DATA = [
-        {
-          phase: 'Fondation — moteur',
-          note: "Le socle technique : vraie Terre streamée, sans triche.",
-          tasks: [
-            { id: 'F1', name: 'Relief réel streamé', done: true, status: 'done',
-              bar: "N'importe quel point du globe → vraie altitude, qui défile sous toi sans charger la planète.",
-              steps: ['Tuiles d\'élévation Terrarium (gratuit, mondial)', 'LOD + déchargement', 'Génération du mesh en Web Worker'] },
-            { id: 'F2', name: 'Origine flottante', done: true, status: 'done',
-              bar: "Parcourir de vrais kilomètres sans perte de précision (pas de tremblement).",
-              steps: ['Repère local ancré au départ', 'Rebasage de l\'origine tous les ~8 km'] },
-            { id: 'F3', name: 'Locomotion : conduite / marche / course', done: true, status: 'done',
-              bar: "Tu roules, tu sors, la voiture reste, tu la rappelles. La boucle de base.",
-              steps: ['Machine à états', 'Laisser & rappeler la voiture', 'Inertie (accélération, lancée)'] },
-          ],
-        },
-        {
-          phase: 'Phase A — Ressenti & look',
-          note: "Rendre le truc beau et agréable à jouer. C\'est ici qu\'on rattrape Slow Roads.",
-          tasks: [
-            { id: 'A1', name: 'Caméra chase + regard vertical', done: true, status: 'done',
-              bar: "Elle glisse, ne passe jamais sous le sol, révèle l\'horizon en haut et tes pieds en bas.",
-              steps: ['Suivi amorti (lerp)', 'Pitch souris haut/bas', 'Rigs par mode'] },
-            { id: 'A2', name: 'Inertie du déplacement', done: true, status: 'done',
-              bar: "La voiture a du poids : elle prend de la vitesse et roule sur sa lancée.",
-              steps: ['Accélération', 'Friction/roue libre', 'À pied réactif'] },
-            { id: 'A3', name: 'Grain du sol', done: true, status: 'done',
-              bar: "Le sol a du grain et des taches, plus un aplat de couleur.",
-              steps: ['Texture de détail procédurale', 'Répétée × teinte du biome'] },
-            { id: 'A4', name: 'Ciel & atmosphère', done: false, status: 'doing',
-              bar: "L\'horizon respire : ciel en dégradé, disque solaire + halo, brume accordée au ciel, couleur du jour. La moitié de l\'ambiance Slow Roads.",
-              steps: ['Dôme de ciel dégradé (shader)', 'Soleil + glow', 'Brume raccordée à la couleur du ciel', 'Réglage lumière douce', 'Nuages subtils'] },
-            { id: 'A5', name: 'Vrais packs de textures', done: false, status: 'todo',
-              bar: "Sur l\'herbe → ça ressemble à de l\'herbe ; sur une falaise → de la roche. Transitions naturelles.",
-              steps: ['Textures herbe/roche/neige/sable', 'Mélange par altitude + pente + bruit', 'Projection triplanaire (pas d\'étirement sur les falaises)', 'Détail proche + macro au loin'] },
-            { id: 'A6', name: 'Eau', done: false, status: 'todo',
-              bar: "L\'eau est mouillée et vivante : océans, lacs, rivières, reflets du ciel, ressac sur la berge.",
-              steps: ['Surface d\'eau au niveau mer', 'Fresnel + vaguelettes animées', 'Trait de côte', 'Lacs/rivières (OSM plus tard)'] },
-            { id: 'A7', name: 'Végétation réussie', done: false, status: 'todo',
-              bar: "Le sol est vivant, on sent la vitesse — herbe qui ondule, arbres variés par climat. Zéro cône.",
-              steps: ['Touffes d\'herbe instanciées près de la caméra (sway)', 'Arbres low-poly variés (feuillus/conifères/palmiers)', 'Densité selon le climat'] },
-            { id: 'A8', name: 'Voiture & personnage crédibles', done: false, status: 'todo',
-              bar: "La voiture ressemble à une voiture et réagit : roues qui tournent/braquent, légère suspension, feux stop.",
-              steps: ['Modèle de voiture (caisse, roues)', 'Roues qui roulent & braquent', 'Inclinaison suspension', 'Personnage + balancement de marche'] },
-            { id: 'A9', name: 'HUD + globe avec ta position', done: false, status: 'todo',
-              bar: "Cockpit épuré et lisible ; un globe 3D dans un coin avec un point lumineux à ta position, qui s\'oriente vers toi.",
-              steps: ['HUD : vitesse, km total, mode, boussole, nom du lieu', 'Globe 3D inséré', 'Marqueur position + orientation'] },
-          ],
-        },
-        {
-          phase: 'Phase B — Le monde vivant (éducatif)',
-          note: "Rendre le monde réel et instructif : routes, villes, savoir.",
-          tasks: [
-            { id: 'B1', name: 'Routes & chemins (OSM)', done: false, status: 'todo',
-              bar: "Tu peux suivre une vraie route à travers une vraie vallée.",
-              steps: ['Récupérer les routes OSM autour de toi', 'Rubans drapés sur le relief', 'Matériau bitume + sensation de route'] },
-            { id: 'B2', name: 'Villes & bâtiments', done: false, status: 'todo',
-              bar: "Arriver dans une vraie ville montre sa vraie forme.",
-              steps: ['Emprises de bâtiments OSM extrudées', 'Toits simples', 'Regroupement en agglomérations'] },
-            { id: 'B3', name: 'Savoir : noms, frontières, POI, km réels', done: false, status: 'todo',
-              bar: "Tu apprends la géo en bougeant ; les chiffres sont vrais.",
-              steps: ['Noms de lieux & frontières', 'Fiches POI (Wikidata) à l\'approche', 'Compteur de vrais km', '« À X km de telle capitale »'] },
-            { id: 'B4', name: 'Départ n\'importe où', done: false, status: 'todo',
-              bar: "Tu ouvres l\'app, tu choisis un point sur Terre (ou ta géoloc), et tu y es.",
-              steps: ['Écran d\'accueil : carte du monde', '« Commencer ici » (géolocalisation)', 'Clic n\'importe où → charge la zone'] },
-          ],
-        },
-        {
-          phase: 'Phase C — Sens & robustesse',
-          note: "Le fignolage qui fait un produit fini.",
-          tasks: [
-            { id: 'C1', name: 'Son', done: false, status: 'todo',
-              bar: "Le son vend le mouvement et le lieu.",
-              steps: ['Moteur procédural (montée en régime)', 'Vent, pneus/pas', 'Ambiance par biome', 'Mute'] },
-            { id: 'C2', name: 'Jour/nuit + météo', done: false, status: 'todo',
-              bar: "L\'heure et la météo changent l\'ambiance.",
-              steps: ['Arc solaire + lune/étoiles', 'Étalonnage couleur sur la journée', 'Nuages, pluie/neige selon le climat'] },
-            { id: 'C3', name: 'Robustesse & perf', done: false, status: 'todo',
-              bar: "Fluide, sans trous, sans à-coups, tourne sur un laptop.",
-              steps: ['Retry des tuiles ratées + combler les trous', 'LOD multi-zoom (lointain détaillé mais léger)', 'Distance d\'affichage & budget image', 'Plafond mémoire'] },
-          ],
-        },
-        {
-          phase: 'Au-delà (gravé, plus tard)',
-          note: "L\'étoile polaire — l\'archi en lat/lon ne ferme aucune de ces portes.",
-          tasks: [
-            { id: 'R1', name: 'Comptes (Gmail) + ta position unique', done: false, status: 'todo', bar: "Ton point sur Terre, sauvegardé, rien qu\'à toi.", steps: ['Auth', 'Position persistée en lat/lon'] },
-            { id: 'R2', name: 'Multijoueur', done: false, status: 'todo', bar: "Croiser de vrais gens sur la vraie carte.", steps: ['Serveur temps réel', 'Sync des positions'] },
-            { id: 'R3', name: 'VR (WebXR)', done: false, status: 'todo', bar: "Explorer la Terre en immersion.", steps: ['Caméra/contrôles WebXR'] },
-            { id: 'R4', name: 'Studio', done: false, status: 'todo', bar: "Si ça grandit, ça grandit — sur un cœur propre.", steps: [] },
-          ],
-        },
+        { phase: '✅ Acquis — le moteur', note: 'Le socle réel, prouvé.', tasks: [
+          { id:'F1', name:'Relief réel streamé', done:true, tier:T.C, bar:"N'importe quel point du globe → vraie altitude qui défile.", steps:['Tuiles Terrarium','LOD + Web Worker'] },
+          { id:'F2', name:'Origine flottante', done:true, tier:T.C, bar:"De vrais km sans tremblement.", steps:['Rebasage ~8 km'] },
+          { id:'F3', name:'Conduite / marche / course + inertie', done:true, tier:T.C, bar:"Tu roules, tu sors, la voiture reste, tu la rappelles.", steps:['Machine à états','Inertie'] },
+          { id:'A1', name:'Caméra chase + regard vertical', done:true, tier:T.C, bar:"Glisse, ne passe plus sous le sol, montre l'horizon.", steps:['Suivi amorti','Pitch souris'] },
+          { id:'A3', name:'Grain du sol', done:true, tier:T.C, bar:"Le sol a du grain au lieu d'un aplat.", steps:['Texture procédurale × biome'] },
+        ]},
+        { phase: '1 · Rendu & fidélité visuelle', note: 'Le look AAA : ce que GTA/Slow Roads soignent en premier.', tasks: [
+          { id:'A4', name:'Ciel & atmosphère', done:false, doing:true, tier:T.C, bar:"L'horizon respire : ciel dégradé, soleil + halo, brume accordée au ciel.", steps:['Dôme de ciel (shader)','Soleil + glow','Brume raccordée','Nuages subtils'] },
+          { id:'A5', name:'Vrais packs de textures (triplanaire)', done:false, tier:T.C, bar:"Sur l'herbe ça ressemble à de l'herbe, sur la falaise à de la roche.", steps:['Herbe/roche/neige/sable','Mélange altitude+pente+bruit','Triplanaire (pas d\'étirement)','Détail proche + macro'] },
+          { id:'V1', name:'Ombres dynamiques du soleil', done:false, tier:T.S, bar:"Le relief projette de vraies ombres qui bougent avec le soleil.", steps:['Cascaded shadow maps','Réglées avec le jour/nuit'] },
+          { id:'V2', name:'Post-traitement ciné', done:false, tier:T.S, bar:"L'image a du peps cinéma : contraste, lumière douce, profondeur.", steps:['Tonemapping ACES','Bloom','SSAO (occlusion)','Vignette + grain léger'] },
+          { id:'V3', name:'Profondeur de champ + flou de vitesse', done:false, tier:T.S, bar:"La vitesse se ressent, le lointain s'estompe joliment.", steps:['Motion blur léger','DOF subtil'] },
+          { id:'A7', name:'Végétation vivante', done:false, tier:T.C, bar:"Herbe qui ondule + arbres variés. Zéro cône.", steps:['Herbe instanciée (sway)','Arbres par climat','Densité climatique'] },
+          { id:'V4', name:'Particules', done:false, tier:T.S, bar:"Poussière sous les roues, éclaboussures, feuilles au vent.", steps:['Poussière véhicule','Éclaboussures eau','Pluie/neige'] },
+        ]},
+        { phase: '2 · Le monde réel vivant', note: 'Rendre la vraie Terre habitée et instructive.', tasks: [
+          { id:'A6', name:'Eau (océans, lacs, rivières)', done:false, tier:T.C, bar:"L'eau est mouillée, reflète le ciel, ressac sur la berge.", steps:['Surface niveau mer','Fresnel + vaguelettes','Trait de côte'] },
+          { id:'B1', name:'Routes & chemins (OSM)', done:false, tier:T.C, bar:"Suivre une vraie route à travers une vraie vallée.", steps:['Routes OSM autour de toi','Rubans drapés','Matériau bitume'] },
+          { id:'B2', name:'Villes & bâtiments (OSM)', done:false, tier:T.S, bar:"Arriver dans une vraie ville montre sa vraie forme.", steps:['Emprises extrudées','Toits simples','Agglomérations'] },
+          { id:'B5', name:'Monuments réels en 3D', done:false, tier:T.S, bar:"La Tour Eiffel, le Kilimandjaro… à leurs vraies coordonnées.", steps:['Modèles de landmarks','Placement géo','Découverte à l\'approche'] },
+          { id:'B3', name:'Savoir : noms, frontières, POI, km réels', done:false, tier:T.C, bar:"Tu apprends la géo en bougeant ; les chiffres sont vrais.", steps:['Noms & frontières','Fiches POI (Wikidata)','Compteur de vrais km','« à X km de telle capitale »'] },
+          { id:'B6', name:'Éclairage nocturne', done:false, tier:T.S, bar:"La nuit : lampadaires en ville, phares, étoiles, lune.", steps:['Lumières urbaines','Phares véhicule','Ciel étoilé'] },
+        ]},
+        { phase: '3 · Déplacement & véhicules', note: 'Le cœur GTA/RDR : se déplacer de mille façons sur la planète.', tasks: [
+          { id:'M1', name:'Moveset à pied', done:false, tier:T.C, bar:"Marche, course, sprint, saut, nage — fluide et réactif.", steps:['Sprint/saut','Nage en entrant dans l\'eau'] },
+          { id:'A8', name:'Voiture crédible + physique', done:false, tier:T.S, bar:"La voiture ressemble à une voiture et réagit : roues, suspension, adhérence, dérive.", steps:['Modèle + roues qui braquent','Suspension/inclinaison','Adhérence & dérive','Collision terrain'] },
+          { id:'M2', name:'Variété de véhicules', done:false, tier:T.A, bar:"Moto, bateau, avion — survoler la vraie Terre.", steps:['Moto','Bateau (sur l\'eau)','Avion / hélico'] },
+          { id:'M3', name:'Caméras : 1re personne + cinématique', done:false, tier:T.C, bar:"Basculer 3e/1re personne, caméra ciné, collision caméra.", steps:['Vue 1re personne','Mode cinématique','Collision caméra'] },
+        ]},
+        { phase: '4 · Vie & simulation', note: 'Ce qui rend un monde vivant — l\'âme de GTA/RDR.', tasks: [
+          { id:'L1', name:'PNJ & circulation', done:false, tier:T.A, bar:"Piétons en ville, voitures sur les routes — le monde bouge sans toi.", steps:['Piétons','Trafic sur routes OSM'] },
+          { id:'L2', name:'Faune (façon Red Dead)', done:false, tier:T.A, bar:"Oiseaux, animaux qui errent selon le biome.", steps:['Oiseaux','Animaux par biome'] },
+          { id:'C2', name:'Jour/nuit + saisons + météo', done:false, tier:T.C, bar:"L'heure, la saison et la météo changent l'ambiance ; herbe/arbres réagissent au vent.", steps:['Arc solaire + lune','Étalonnage couleur','Pluie/neige/brouillard','Saisons par date/région'] },
+        ]},
+        { phase: '5 · Couche jeu', note: 'Carte, objectifs, progression — la structure ludique & éducative.', tasks: [
+          { id:'G1', name:'Carte plein écran + minimap + waypoints', done:false, tier:T.C, bar:"Une vraie carte du monde, une minimap, des points de repère.", steps:['Carte tuiles réelles','Minimap + ta position','Waypoints'] },
+          { id:'G2', name:'Voyage rapide', done:false, tier:T.C, bar:"Choisir une destination et y aller (le monde est immense).", steps:['Clic destination','Chargement zone'] },
+          { id:'A9', name:'Globe + HUD complet', done:false, tier:T.C, bar:"Cockpit épuré : vitesse, km, mode, boussole, lieu + un globe avec ta position.", steps:['HUD lisible','Globe 3D + marqueur'] },
+          { id:'G3', name:'Objectifs & quêtes d\'exploration', done:false, tier:T.S, bar:"Atteindre une capitale, trouver un monument, collecter des faits.", steps:['Objectifs géo','Récompenses de découverte'] },
+          { id:'G4', name:'Progression & succès', done:false, tier:T.S, bar:"Pays visités, km parcourus, lieux découverts — ça s\'accumule.", steps:['Compteurs','Succès/badges'] },
+          { id:'G5', name:'Mode photo', done:false, tier:T.S, bar:"Caméra libre + filtres pour capturer et partager.", steps:['Caméra libre','Filtres','Export image'] },
+          { id:'B4', name:'Départ n\'importe où', done:false, tier:T.C, bar:"Tu ouvres l'app, tu choisis un point sur Terre (ou ta géoloc), tu y es.", steps:['« Commencer ici » (géoloc)','Clic sur la carte'] },
+        ]},
+        { phase: '6 · Audio', note: 'Le son qui vend le mouvement et le lieu.', tasks: [
+          { id:'C1', name:'Moteur, vent, pas', done:false, tier:T.C, bar:"Moteur qui monte en régime, vent, pas — le mouvement s'entend.", steps:['Moteur procédural','Vent/pneus/pas','Mute'] },
+          { id:'C4', name:'Ambiance spatiale + musique', done:false, tier:T.S, bar:"Soundscape par biome/heure, doppler, musique chill.", steps:['Ambiance par biome','Doppler','Musique'] },
+        ]},
+        { phase: '7 · Systèmes', note: 'La plomberie qui fait un produit fini.', tasks: [
+          { id:'C3', name:'Streaming, LOD & perf', done:false, tier:T.C, bar:"Fluide, sans trous, sans à-coups, tourne sur un laptop.", steps:['Retry tuiles + combler trous','LOD multi-zoom','Distance d\'affichage','Budget image + mémoire'] },
+          { id:'S1', name:'Réglages', done:false, tier:T.C, bar:"Qualité graphique, distance, contrôles remappables.", steps:['Préréglages qualité','Remap touches'] },
+          { id:'S2', name:'Sauvegarde locale', done:false, tier:T.C, bar:"Ta position et ta progression sont retrouvées au retour.", steps:['Sauvegarde position','Sauvegarde progression'] },
+        ]},
+        { phase: '∞ · Au-delà (gravé, plus tard)', note: 'L\'étoile polaire — l\'archi lat/lon garde ces portes ouvertes.', tasks: [
+          { id:'R1', name:'Comptes (Gmail) + position unique', done:false, tier:T.A, bar:"Ton point sur Terre, sauvegardé, rien qu'à toi.", steps:[] },
+          { id:'R2', name:'Multijoueur', done:false, tier:T.A, bar:"Croiser de vrais gens sur la vraie carte.", steps:[] },
+          { id:'R3', name:'VR (WebXR)', done:false, tier:T.A, bar:"Explorer la Terre en immersion.", steps:[] },
+        ]},
       ];
 
-      const KEY = 'we-roadmap-v1';
+      const KEY = 'we-roadmap-v2';
       const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
       const state = {};
-      DATA.forEach((p) => p.tasks.forEach((t) => { state[t.id] = (t.id in saved) ? saved[t.id] : t.done; }));
+      DATA.forEach((p) => p.tasks.forEach((t) => { state[t.id] = (t.id in saved) ? saved[t.id] : !!t.done; }));
       const save = () => localStorage.setItem(KEY, JSON.stringify(state));
-
       const CHECK = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 6" stroke="#0e1014" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       const CHEV = '<svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       const board = document.getElementById('board');
       let filter = 'all';
+      const tierLabel = { core: 'Core', stretch: 'Stretch', asp: 'Rêve' };
 
       function pill(t) {
         const done = state[t.id];
-        const cls = done ? 'done' : (t.status === 'doing' ? 'doing' : 'todo');
-        const label = done ? 'fait' : (t.status === 'doing' ? 'en cours' : 'à faire');
+        const cls = done ? 'done' : (t.doing ? 'doing' : 'todo');
+        const label = done ? 'fait' : (t.doing ? 'en cours' : 'à faire');
         return `<span class="pill ${cls}">${label}</span>`;
       }
-
       function render() {
         board.innerHTML = '';
         DATA.forEach((p) => {
-          const total = p.tasks.length;
-          const done = p.tasks.filter((t) => state[t.id]).length;
+          const total = p.tasks.length, done = p.tasks.filter((t) => state[t.id]).length;
           const sec = document.createElement('section');
           sec.className = 'phase';
-          sec.innerHTML = `
-            <div class="phase-head">
-              <h2>${p.phase}</h2>
-              <div class="mini"><i style="width:${total ? (done / total) * 100 : 0}%"></i></div>
-              <span class="count">${done}/${total}</span>
-            </div>
-            <p class="phase-note">${p.note}</p>`;
+          sec.innerHTML = `<div class="phase-head"><h2>${p.phase}</h2><div class="mini"><i style="width:${total ? (done/total)*100 : 0}%"></i></div><span class="count">${done}/${total}</span></div><p class="phase-note">${p.note}</p>`;
           p.tasks.forEach((t) => {
             const isDone = state[t.id];
             if (filter === 'todo' && isDone) return;
@@ -267,58 +196,30 @@
                 <button class="check" aria-label="toggle">${CHECK}</button>
                 <div class="main">
                   <div class="head-line">
-                    <span class="id">${t.id}</span>
                     <span class="name">${t.name}</span>
+                    <span class="tier ${t.tier}">${tierLabel[t.tier]}</span>
                     ${pill(t)}
                   </div>
                   <div class="desc">${t.bar}</div>
                 </div>
                 ${CHEV}
               </div>
-              <div class="detail">
-                <div class="bar-label">Le niveau visé</div>
-                <blockquote>${t.bar}</blockquote>
-                ${stepsHtml}
-              </div>`;
-            const row = card.querySelector('.row');
-            const check = card.querySelector('.check');
-            check.addEventListener('click', (e) => {
-              e.stopPropagation();
-              state[t.id] = !state[t.id];
-              save();
-              render();
-            });
-            row.addEventListener('click', () => card.classList.toggle('open'));
+              <div class="detail"><div class="bl">Le niveau visé</div><blockquote>${t.bar}</blockquote>${stepsHtml}</div>`;
+            card.querySelector('.check').addEventListener('click', (e) => { e.stopPropagation(); state[t.id] = !state[t.id]; save(); render(); });
+            card.querySelector('.row').addEventListener('click', () => card.classList.toggle('open'));
             sec.appendChild(card);
           });
           board.appendChild(sec);
         });
-        updateOverall();
-      }
-
-      function updateOverall() {
-        const all = Object.keys(state);
-        const done = all.filter((k) => state[k]).length;
-        const pct = all.length ? Math.round((done / all.length) * 100) : 0;
+        const all = Object.keys(state), d = all.filter((k) => state[k]).length, pct = all.length ? Math.round((d/all.length)*100) : 0;
         document.getElementById('overall').style.width = pct + '%';
-        document.getElementById('overallPct').textContent = `${done} / ${all.length} · ${pct}%`;
+        document.getElementById('overallPct').textContent = `${d} / ${all.length} · ${pct}%`;
       }
-
-      document.querySelectorAll('.filters button').forEach((b) => {
-        b.addEventListener('click', () => {
-          document.querySelectorAll('.filters button').forEach((x) => x.classList.remove('on'));
-          b.classList.add('on');
-          filter = b.dataset.f;
-          render();
-        });
-      });
-      document.getElementById('reset').addEventListener('click', () => {
-        localStorage.removeItem(KEY);
-        DATA.forEach((p) => p.tasks.forEach((t) => { state[t.id] = t.done; }));
-        save();
-        render();
-      });
-
+      document.querySelectorAll('.filters button').forEach((b) => b.addEventListener('click', () => {
+        document.querySelectorAll('.filters button').forEach((x) => x.classList.remove('on'));
+        b.classList.add('on'); filter = b.dataset.f; render();
+      }));
+      document.getElementById('reset').addEventListener('click', () => { localStorage.removeItem(KEY); DATA.forEach((p) => p.tasks.forEach((t) => state[t.id] = !!t.done)); save(); render(); });
       render();
     </script>
   </body>
