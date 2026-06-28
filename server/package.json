@@ -1,0 +1,13 @@
+{
+  "name": "world-explorer-server",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Minimal geo-data backend: serves real landcover-derived biome tiles to the client (no accounts, no multiplayer).",
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "dependencies": {
+    "geotiff": "^2.1.3"
+  }
+}
