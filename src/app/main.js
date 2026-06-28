@@ -1,4 +1,7 @@
 import { createScene } from '../render/scene.js';
+import { createHUD } from '../render/hud.js';
+import { createGlobe } from '../render/globe.js';
+import { haversine } from '../core/geo/index.js';
 import { createWorldFrame } from '../core/state/index.js';
 import { createElevationSource, loadTerrariumTile } from '../data/elevation/index.js';
 import { createBiomeSource } from '../data/landcover/biomeSource.js';
@@ -29,6 +32,8 @@ const loco = createLocomotion({ start: START });
 const avatars = createAvatars(scene);
 const follow = createFollowCamera(camera);
 const water = createWater(scene, sunLight.position.clone().normalize());
+const hud = createHUD();
+const globe = createGlobe();
 
 // Controls: WASD / ZQSD / arrows to move, drag to orbit, F enter/exit car,
 // R recall car, Shift toggles run.
@@ -58,6 +63,8 @@ addEventListener('pointermove', (e) => {
 let lastGroundY = await elevation.heightAt(START.lat, START.lon);
 
 let elapsed = 0;
+let totalMeters = 0; // real distance travelled (odometer)
+const prevPos = { ...START };
 let prev = performance.now();
 function frame(now) {
   const dt = Math.min(0.05, (now - prev) / 1000);
@@ -71,6 +78,10 @@ function frame(now) {
   if (keys.has('KeyA') || keys.has('KeyQ') || keys.has('ArrowLeft')) turn -= 1;
   if (keys.has('KeyD') || keys.has('ArrowRight')) turn += 1;
   loco.update(dt, { forward, turn });
+
+  totalMeters += haversine(prevPos, loco.position);
+  prevPos.lat = loco.position.lat;
+  prevPos.lon = loco.position.lon;
 
   tiles.update(loco.position);
   const shift = worldFrame.maybeRebase(loco.position);
@@ -98,6 +109,16 @@ function frame(now) {
 
   follow.update({ target, headingRad: loco.heading, mode: loco.mode, groundY: lastGroundY, orbit, pitch, dt });
 
+  hud.update({
+    speedKmh: Math.abs(loco.speed) * 3.6,
+    totalKm: totalMeters / 1000,
+    mode: loco.mode,
+    headingDeg: (loco.heading * 180) / Math.PI,
+    lat: loco.position.lat,
+    lon: loco.position.lon,
+  });
+  globe.update(loco.position.lat, loco.position.lon);
+
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
 }
@@ -112,6 +133,7 @@ window.__we = {
   elevation,
   renderer,
   scene,
+  globe,
   get groundY() {
     return lastGroundY;
   },
