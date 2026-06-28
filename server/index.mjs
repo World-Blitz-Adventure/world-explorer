@@ -1,6 +1,6 @@
 import { createServer } from 'http';
 import { biomeTile } from './worldcover.mjs';
-import { roadsTile } from './osm.mjs';
+import { roadsTile, buildingsTile } from './osm.mjs';
 
 const PORT = process.env.PORT || 8787;
 
@@ -14,17 +14,19 @@ createServer(async (req, res) => {
 
   const mBiome = req.url.match(/^\/biome\/(\d+)\/(\d+)\/(\d+)/);
   const mRoads = req.url.match(/^\/roads\/(\d+)\/(\d+)\/(\d+)/);
-  if (!mBiome && !mRoads) {
+  const mBld = req.url.match(/^\/buildings\/(\d+)\/(\d+)\/(\d+)/);
+  const m = mBiome || mRoads || mBld;
+  if (!m) {
     res.statusCode = 404;
     res.end('not found');
     return;
   }
 
   try {
-    const m = mBiome || mRoads;
-    const data = mBiome
-      ? await biomeTile(Number(m[1]), Number(m[2]), Number(m[3]))
-      : await roadsTile(Number(m[1]), Number(m[2]), Number(m[3]));
+    const z = Number(m[1]);
+    const x = Number(m[2]);
+    const y = Number(m[3]);
+    const data = mBiome ? await biomeTile(z, x, y) : mRoads ? await roadsTile(z, x, y) : await buildingsTile(z, x, y);
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(data));
   } catch (err) {
