@@ -28,17 +28,17 @@ export function createScene({ canvas }) {
   u.mieCoefficient.value = 0.005;
   u.mieDirectionalG.value = 0.8;
 
-  // Sun direction from elevation/azimuth (a pleasant mid-morning light).
+  // Sun direction — lower & warmer for golden-hour mood and long shadows.
   const sunDir = new THREE.Vector3();
-  const elevation = 26; // degrees above the horizon
-  const azimuth = 140;
+  const elevation = 19; // degrees above the horizon
+  const azimuth = 135;
   const phi = THREE.MathUtils.degToRad(90 - elevation);
   const theta = THREE.MathUtils.degToRad(azimuth);
   sunDir.setFromSphericalCoords(1, phi, theta);
   u.sunPosition.value.copy(sunDir);
 
   // Lights aligned to the sun.
-  const sunLight = new THREE.DirectionalLight(0xfff2e0, 3.0);
+  const sunLight = new THREE.DirectionalLight(0xffe2b0, 3.3);
   sunLight.position.copy(sunDir).multiplyScalar(900);
   sunLight.castShadow = true;
   sunLight.shadow.mapSize.set(2048, 2048);
@@ -52,11 +52,11 @@ export function createScene({ canvas }) {
   sunLight.shadow.bias = -0.0004;
   sunLight.shadow.normalBias = 0.6;
   scene.add(sunLight, sunLight.target);
-  scene.add(new THREE.HemisphereLight(0xbcd6ff, 0x4a5440, 0.7));
+  scene.add(new THREE.HemisphereLight(0xcdd9ee, 0x5a513a, 0.55));
 
   // Fog tuned to the horizon haze so distant terrain melts into the sky.
-  const haze = new THREE.Color(0xc3d4e6);
-  scene.fog = new THREE.Fog(haze, 3000, 30000);
+  const haze = new THREE.Color(0xd6d2c6);
+  scene.fog = new THREE.Fog(haze, 3000, 28000);
 
   const camera = new THREE.PerspectiveCamera(60, 1, 1, 48000);
   camera.position.set(0, 600, 800);

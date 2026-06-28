@@ -34,7 +34,7 @@ const elevation = createElevationSource({ loadTile: loadTerrariumTile, maxZoom: 
 const biomeSource = createBiomeSource();
 const tiles = createTileManager({ scene, elevation, biomeSource, worldFrame, zoom: ZOOM, radius: RADIUS, grid: GRID });
 const roadSource = createRoadSource();
-const roads = createRoadManager({ scene, roadSource, elevation, worldFrame, zoom: ZOOM, radius: 1 });
+const roads = createRoadManager({ scene, roadSource, elevation, worldFrame, zoom: ZOOM, radius: 2 });
 const buildingSource = createBuildingSource();
 const buildings = createBuildingManager({ scene, buildingSource, elevation, worldFrame, zoom: ZOOM, radius: 1 });
 const loco = createLocomotion({ start: START, isBlocked: (lat, lon) => buildings.blocks(lat, lon) });
