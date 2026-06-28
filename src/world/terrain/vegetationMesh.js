@@ -10,22 +10,23 @@ const OLIVE = 0x6b7a3a;
 const PALMG = 0x3f7d3a;
 const CACT = 0x4a7a4a;
 
-// Give a part a solid vertex colour. Normalize to non-indexed and drop uv so
-// every part has the same attributes and merges cleanly (indexed cones +
-// non-indexed icospheres would otherwise fail to merge → null geometry).
+// Build a clean non-indexed part with exactly position + normal + color, so all
+// parts have identical attributes and mergeGeometries always succeeds.
 function colored(geo, color) {
-  geo.deleteAttribute('uv');
-  const g = geo.index ? geo.toNonIndexed() : geo;
+  const src = geo.index ? geo.toNonIndexed() : geo;
+  const out = new THREE.BufferGeometry();
+  out.setAttribute('position', src.attributes.position.clone());
+  out.setAttribute('normal', src.attributes.normal.clone());
   const c = new THREE.Color(color);
-  const n = g.attributes.position.count;
+  const n = src.attributes.position.count;
   const arr = new Float32Array(n * 3);
   for (let i = 0; i < n; i++) {
     arr[i * 3] = c.r;
     arr[i * 3 + 1] = c.g;
     arr[i * 3 + 2] = c.b;
   }
-  g.setAttribute('color', new THREE.BufferAttribute(arr, 3));
-  return g;
+  out.setAttribute('color', new THREE.BufferAttribute(arr, 3));
+  return out;
 }
 function trunk(rTop, rBot, h, color) {
   const g = new THREE.CylinderGeometry(rTop, rBot, h, 6);
