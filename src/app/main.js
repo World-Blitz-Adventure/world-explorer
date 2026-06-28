@@ -89,9 +89,10 @@ function frame(now) {
 
   // Car sits at its own position when left behind, or at the player while driving.
   const carLL = loco.inCar ? loco.position : loco.car;
+  const carHeading = loco.inCar ? loco.heading : loco.car.heading;
   const carGroundY = elevation.heightAtCached(carLL.lat, carLL.lon);
   const cw = worldFrame.toWorld(carLL);
-  avatars.setCar({ x: cw.x, y: carGroundY != null ? carGroundY : lastGroundY, z: cw.z }, loco.heading);
+  avatars.setCar({ x: cw.x, y: carGroundY != null ? carGroundY : lastGroundY, z: cw.z }, carHeading);
 
   follow.update({ target, headingRad: loco.heading, mode: loco.mode, groundY: lastGroundY, orbit, pitch, dt });
 

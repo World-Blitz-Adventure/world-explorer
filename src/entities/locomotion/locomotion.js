@@ -17,7 +17,7 @@ export function createLocomotion({ start }) {
     heading: 0, // radians, 0 = north
     speed: 0, // current m/s, signed
     inCar: false,
-    car: { ...start },
+    car: { ...start, heading: 0 },
   };
 
   function step(dt, input) {
@@ -40,6 +40,7 @@ export function createLocomotion({ start }) {
       if (state.inCar) {
         state.car.lat = next.lat;
         state.car.lon = next.lon; // the car carries you while driving
+        state.car.heading = state.heading;
       }
     }
   }
@@ -69,10 +70,10 @@ export function createLocomotion({ start }) {
       state.inCar = false;
       state.mode = 'WALKING';
       state.speed = 0; // step out at rest
-      state.car = { ...state.position };
+      state.car = { lat: state.position.lat, lon: state.position.lon, heading: state.heading };
     },
     recallCar() {
-      state.car = { ...state.position };
+      state.car = { lat: state.position.lat, lon: state.position.lon, heading: state.heading };
     },
   };
 }

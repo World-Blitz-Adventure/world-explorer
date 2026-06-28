@@ -84,6 +84,17 @@ describe('locomotion', () => {
     expect(haversine(loco.car, loco.position)).toBeCloseTo(0, 6); // car comes to you
   });
 
+  it('keeps the parked car heading fixed while you walk and turn', () => {
+    const loco = createLocomotion({ start: START });
+    loco.enterCar();
+    for (let i = 0; i < 20; i++) loco.update(0.1, { forward: 1, turn: 1 }); // drive & turn
+    loco.exitCar();
+    const parkedHeading = loco.car.heading;
+    for (let i = 0; i < 30; i++) loco.update(0.1, { forward: 1, turn: 1 }); // walk & turn a lot
+    expect(loco.heading).not.toBeCloseTo(parkedHeading, 2); // player turned
+    expect(loco.car.heading).toBeCloseTo(parkedHeading, 6); // car did not
+  });
+
   it('turns the heading', () => {
     const loco = createLocomotion({ start: START });
     const h0 = loco.heading;
