@@ -28,7 +28,7 @@ const canvas = document.createElement('canvas');
 canvas.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;display:block';
 document.getElementById('app').appendChild(canvas);
 
-const { renderer, scene, camera, sunLight } = createScene({ canvas });
+const { renderer, scene, camera, composer, sunLight } = createScene({ canvas });
 const worldFrame = createWorldFrame(START);
 const elevation = createElevationSource({ loadTile: loadTerrariumTile, maxZoom: ZOOM });
 const biomeSource = createBiomeSource();
@@ -170,7 +170,7 @@ function frame(now) {
     capital: capitalLabel,
   });
 
-  renderer.render(scene, camera);
+  composer.render();
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
@@ -190,7 +190,7 @@ window.__we = {
   get groundY() {
     return lastGroundY;
   },
-  renderOnce: () => renderer.render(scene, camera),
+  renderOnce: () => composer.render(),
 };
 }
 

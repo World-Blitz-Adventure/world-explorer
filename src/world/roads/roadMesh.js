@@ -7,8 +7,9 @@ const WIDTH = {
   residential: 4, unclassified: 4, service: 3, living_street: 3,
 };
 
-const roadMat = new THREE.MeshLambertMaterial({
-  color: 0x55565e, // asphalt grey
+// Unlit so roads are a consistent asphalt grey from any angle (never black).
+const roadMat = new THREE.MeshBasicMaterial({
+  color: 0x4c4d54,
   side: THREE.DoubleSide,
   polygonOffset: true,
   polygonOffsetFactor: -2, // sit on top of the terrain without z-fighting

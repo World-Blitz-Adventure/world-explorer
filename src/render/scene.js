@@ -1,5 +1,9 @@
 import * as THREE from 'three';
 import { Sky } from 'three/addons/objects/Sky.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 /** Build the renderer, an atmospheric sky, sun-aligned lights, and matched fog. */
 export function createScene({ canvas }) {
@@ -43,15 +47,24 @@ export function createScene({ canvas }) {
   const camera = new THREE.PerspectiveCamera(60, 1, 1, 48000);
   camera.position.set(0, 600, 800);
 
+  // Cinematic post-processing: subtle bloom + filmic output.
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.12, 0.35, 1.4); // strength, radius, threshold (only bright highlights)
+  composer.addPass(bloom);
+  composer.addPass(new OutputPass());
+
   function resize() {
     const w = canvas.clientWidth || window.innerWidth;
     const h = canvas.clientHeight || window.innerHeight;
     renderer.setSize(w, h, false);
+    composer.setSize(w, h);
+    bloom.setSize(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
   }
   resize();
   window.addEventListener('resize', resize);
 
-  return { renderer, scene, camera, resize, sunLight };
+  return { renderer, scene, camera, composer, resize, sunLight };
 }
