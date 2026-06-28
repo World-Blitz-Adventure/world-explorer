@@ -21,8 +21,10 @@ export function createHUD() {
   ].join(';');
   root.innerHTML = `
     <div id="hud-info" style="position:absolute;top:18px;left:20px;font-size:12px;letter-spacing:.04em;line-height:1.7;opacity:.92">
+      <div id="hud-place" style="font-size:15px;font-weight:600;letter-spacing:0;margin-bottom:1px"></div>
       <div><span id="hud-mode" style="color:#6ee7b7;font-weight:600"></span> · <span id="hud-dir"></span></div>
       <div id="hud-coords" style="opacity:.8"></div>
+      <div id="hud-capital" style="opacity:.7;color:#9fd6ff"></div>
     </div>
     <div id="hud-speed" style="position:absolute;bottom:22px;left:24px">
       <div><span id="hud-kmh" style="font-size:34px;font-weight:600;font-variant-numeric:tabular-nums">0</span>
@@ -37,14 +39,18 @@ export function createHUD() {
   const mode = $('#hud-mode');
   const dir = $('#hud-dir');
   const coords = $('#hud-coords');
+  const placeEl = $('#hud-place');
+  const capitalEl = $('#hud-capital');
 
   return {
-    update({ speedKmh, totalKm, mode: m, headingDeg, lat, lon }) {
+    update({ speedKmh, totalKm, mode: m, headingDeg, lat, lon, place, country, capital }) {
       kmh.textContent = Math.round(speedKmh);
       km.textContent = totalKm.toFixed(1);
       mode.textContent = MODE_LABEL[m] || m;
       dir.textContent = `${cardinal(headingDeg)} ${Math.round(((headingDeg % 360) + 360) % 360)}°`;
       coords.textContent = fmtLatLon(lat, lon);
+      placeEl.textContent = place ? (country ? `${place}, ${country}` : place) : '';
+      capitalEl.textContent = capital || '';
     },
   };
 }

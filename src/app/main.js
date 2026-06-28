@@ -7,6 +7,8 @@ import { createElevationSource, loadTerrariumTile } from '../data/elevation/inde
 import { createBiomeSource } from '../data/landcover/biomeSource.js';
 import { createRoadSource } from '../data/osm/roadSource.js';
 import { createBuildingSource } from '../data/osm/buildingSource.js';
+import { createPlaceSource } from '../data/osm/placeSource.js';
+import { capitalOf } from '../data/capitals.js';
 import { createTileManager } from '../world/streaming/tileManager.js';
 import { createRoadManager } from '../world/streaming/roadManager.js';
 import { createBuildingManager } from '../world/streaming/buildingManager.js';
@@ -41,6 +43,9 @@ const follow = createFollowCamera(camera);
 const water = createWater(scene, sunLight.position.clone().normalize());
 const hud = createHUD();
 const globe = createGlobe();
+const placeSource = createPlaceSource();
+let placeInfo = null;
+let placeCell = '';
 
 // Controls: WASD / ZQSD / arrows to move, drag to orbit, F enter/exit car,
 // R recall car, Shift toggles run.
@@ -131,6 +136,34 @@ function frame(now) {
     lon: loco.position.lon,
   });
   globe.update(loco.position.lat, loco.position.lon);
+
+  // Reverse-geocode when we cross into a new ~1 km cell.
+  const cell = `${loco.position.lat.toFixed(2)},${loco.position.lon.toFixed(2)}`;
+  if (cell !== placeCell) {
+    placeCell = cell;
+    placeSource.get(loco.position.lat, loco.position.lon).then((p) => {
+      if (p) placeInfo = p;
+    });
+  }
+  let capitalLabel = null;
+  if (placeInfo) {
+    const cap = capitalOf(placeInfo.code);
+    if (cap) {
+      const km = haversine(loco.position, cap) / 1000;
+      capitalLabel = km < 5 ? `${cap.name} (capitale)` : `à ${Math.round(km)} km de ${cap.name}`;
+    }
+  }
+  hud.update({
+    speedKmh: Math.abs(loco.speed) * 3.6,
+    totalKm: totalMeters / 1000,
+    mode: loco.mode,
+    headingDeg: (loco.heading * 180) / Math.PI,
+    lat: loco.position.lat,
+    lon: loco.position.lon,
+    place: placeInfo?.place,
+    country: placeInfo?.country,
+    capital: capitalLabel,
+  });
 
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
