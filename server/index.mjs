@@ -1,6 +1,7 @@
 import { createServer } from 'http';
 import { biomeTile } from './worldcover.mjs';
 import { roadsTile, buildingsTile } from './osm.mjs';
+import { place } from './geocode.mjs';
 
 const PORT = process.env.PORT || 8787;
 
@@ -9,6 +10,19 @@ createServer(async (req, res) => {
 
   if (req.url === '/health') {
     res.end('ok');
+    return;
+  }
+
+  const url = new URL(req.url, 'http://x');
+  if (url.pathname === '/place') {
+    try {
+      const data = await place(Number(url.searchParams.get('lat')), Number(url.searchParams.get('lon')));
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(data));
+    } catch (err) {
+      res.statusCode = 500;
+      res.end('error: ' + err.message);
+    }
     return;
   }
 
