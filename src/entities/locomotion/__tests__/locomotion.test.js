@@ -103,6 +103,13 @@ describe('locomotion', () => {
     expect(loco.position.lat).toBeLessThan(START.lat + 0.0003); // stopped at the wall
   });
 
+  it('can still move when already inside an obstacle (never gets stuck)', () => {
+    const loco = createLocomotion({ start: START, isBlocked: () => true }); // blocked everywhere
+    loco.enterCar();
+    for (let i = 0; i < 20; i++) loco.update(0.1, { forward: 1, turn: 0 });
+    expect(haversine(loco.position, START)).toBeGreaterThan(5); // it moved out
+  });
+
   it('turns the heading', () => {
     const loco = createLocomotion({ start: START });
     const h0 = loco.heading;

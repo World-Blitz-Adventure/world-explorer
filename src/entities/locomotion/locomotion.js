@@ -36,7 +36,9 @@ export function createLocomotion({ start, isBlocked }) {
       const east = Math.sin(state.heading) * dist;
       const north = Math.cos(state.heading) * dist;
       const next = makeProjection(state.position).toLatLon(east, north);
-      if (blocked(next.lat, next.lon)) {
+      // Block only entering a building from outside; if already inside (e.g.
+      // spawned on a footprint), allow movement so you can get back out.
+      if (blocked(next.lat, next.lon) && !blocked(state.position.lat, state.position.lon)) {
         state.speed *= 0.15; // hit a wall — stop dead
       } else {
         state.position.lat = next.lat;
