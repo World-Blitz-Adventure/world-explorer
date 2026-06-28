@@ -95,6 +95,14 @@ describe('locomotion', () => {
     expect(loco.car.heading).toBeCloseTo(parkedHeading, 6); // car did not
   });
 
+  it('is blocked from driving into an obstacle', () => {
+    // Treat anything north of the start as a wall.
+    const loco = createLocomotion({ start: START, isBlocked: (lat) => lat > START.lat + 0.0001 });
+    loco.enterCar();
+    for (let i = 0; i < 50; i++) loco.update(0.1, { forward: 1, turn: 0 }); // drive north into it
+    expect(loco.position.lat).toBeLessThan(START.lat + 0.0003); // stopped at the wall
+  });
+
   it('turns the heading', () => {
     const loco = createLocomotion({ start: START });
     const h0 = loco.heading;

@@ -37,7 +37,7 @@ const roadSource = createRoadSource();
 const roads = createRoadManager({ scene, roadSource, elevation, worldFrame, zoom: ZOOM, radius: 1 });
 const buildingSource = createBuildingSource();
 const buildings = createBuildingManager({ scene, buildingSource, elevation, worldFrame, zoom: ZOOM, radius: 1 });
-const loco = createLocomotion({ start: START });
+const loco = createLocomotion({ start: START, isBlocked: (lat, lon) => buildings.blocks(lat, lon) });
 const avatars = createAvatars(scene);
 const follow = createFollowCamera(camera);
 const water = createWater(scene, sunLight.position.clone().normalize());

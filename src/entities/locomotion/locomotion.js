@@ -10,7 +10,8 @@ const TURN_DRIVING = 1.2;
 const ENTER_DISTANCE_M = 12;
 
 /** Land locomotion: walk / run / drive with inertia, leave and recall the car. */
-export function createLocomotion({ start }) {
+export function createLocomotion({ start, isBlocked }) {
+  const blocked = isBlocked || (() => false);
   const state = {
     mode: 'WALKING',
     position: { ...start },
@@ -35,12 +36,16 @@ export function createLocomotion({ start }) {
       const east = Math.sin(state.heading) * dist;
       const north = Math.cos(state.heading) * dist;
       const next = makeProjection(state.position).toLatLon(east, north);
-      state.position.lat = next.lat;
-      state.position.lon = next.lon;
-      if (state.inCar) {
-        state.car.lat = next.lat;
-        state.car.lon = next.lon; // the car carries you while driving
-        state.car.heading = state.heading;
+      if (blocked(next.lat, next.lon)) {
+        state.speed *= 0.15; // hit a wall — stop dead
+      } else {
+        state.position.lat = next.lat;
+        state.position.lon = next.lon;
+        if (state.inCar) {
+          state.car.lat = next.lat;
+          state.car.lon = next.lon; // the car carries you while driving
+          state.car.heading = state.heading;
+        }
       }
     }
   }
