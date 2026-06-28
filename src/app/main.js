@@ -5,26 +5,28 @@ import { createTileManager } from '../world/streaming/tileManager.js';
 import { createLocomotion } from '../entities/locomotion/locomotion.js';
 import { createAvatars } from '../entities/avatars.js';
 import { createFollowCamera } from '../entities/camera/followCamera.js';
+import { createWater } from '../world/water.js';
 
-// Temporary demo start in the Chamonix valley (Alps) — mountains all around,
-// which frames the embodied third-person view well. The real start point
+// Temporary demo start at Nice (Côte d'Azur) — Mediterranean sea ahead, Alps
+// behind, so both the water and the relief are in view. The real start point
 // (geolocation / your own choice) arrives with the start-anywhere layer.
-const START = { lat: 45.9237, lon: 6.8694 };
+const START = { lat: 43.695, lon: 7.265 };
 const ZOOM = 13;
-const RADIUS = 3;
-const GRID = 129;
+const RADIUS = 4; // wider so the open sea loads around coastal demos
+const GRID = 113;
 
 const canvas = document.createElement('canvas');
 canvas.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;display:block';
 document.getElementById('app').appendChild(canvas);
 
-const { renderer, scene, camera } = createScene({ canvas });
+const { renderer, scene, camera, sunLight } = createScene({ canvas });
 const worldFrame = createWorldFrame(START);
 const elevation = createElevationSource({ loadTile: loadTerrariumTile, maxZoom: ZOOM });
 const tiles = createTileManager({ scene, elevation, worldFrame, zoom: ZOOM, radius: RADIUS, grid: GRID });
 const loco = createLocomotion({ start: START });
 const avatars = createAvatars(scene);
 const follow = createFollowCamera(camera);
+const water = createWater(scene, sunLight.position.clone().normalize());
 
 // Controls: WASD / ZQSD / arrows to move, drag to orbit, F enter/exit car,
 // R recall car, Shift toggles run.
@@ -53,10 +55,12 @@ addEventListener('pointermove', (e) => {
 // Preload the start tile so we spawn on the ground, not in the sky.
 let lastGroundY = await elevation.heightAt(START.lat, START.lon);
 
+let elapsed = 0;
 let prev = performance.now();
 function frame(now) {
   const dt = Math.min(0.05, (now - prev) / 1000);
   prev = now;
+  elapsed += dt;
 
   let forward = 0;
   if (keys.has('KeyW') || keys.has('KeyZ') || keys.has('ArrowUp')) forward += 1;
@@ -77,6 +81,7 @@ function frame(now) {
   if (groundY != null) lastGroundY = groundY;
   const pw = worldFrame.toWorld(loco.position);
   const target = { x: pw.x, y: lastGroundY, z: pw.z };
+  water.update(elapsed, pw);
 
   // Person stands at the player when on foot.
   avatars.setPerson(target, loco.heading);
