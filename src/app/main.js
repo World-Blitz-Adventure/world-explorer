@@ -1,7 +1,7 @@
 import { createScene } from '../render/scene.js';
 import { createHUD } from '../render/hud.js';
 import { createGlobe } from '../render/globe.js';
-import { haversine } from '../core/geo/index.js';
+import { haversine, makeProjection } from '../core/geo/index.js';
 import { createWorldFrame } from '../core/state/index.js';
 import { createElevationSource, loadTerrariumTile } from '../data/elevation/index.js';
 import { createBiomeSource } from '../data/landcover/biomeSource.js';
@@ -126,6 +126,11 @@ function frame(now) {
   avatars.animateCar({ speed: loco.inCar ? loco.speed : 0, steer: loco.inCar ? turn : 0, dt });
 
   follow.update({ target, headingRad: loco.heading, mode: loco.mode, groundY: lastGroundY, orbit, pitch, dt });
+
+  // Never let the camera sink below the terrain at its own location.
+  const camLL = makeProjection(worldFrame.origin).toLatLon(camera.position.x, -camera.position.z);
+  const camGround = elevation.heightAtCached(camLL.lat, camLL.lon);
+  if (camGround != null && camera.position.y < camGround + 3) camera.position.y = camGround + 3;
 
   hud.update({
     speedKmh: Math.abs(loco.speed) * 3.6,
