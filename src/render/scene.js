@@ -28,18 +28,8 @@ export function createScene({ canvas }) {
   u.mieCoefficient.value = 0.005;
   u.mieDirectionalG.value = 0.8;
 
-  // Sun direction — lower & warmer for golden-hour mood and long shadows.
   const sunDir = new THREE.Vector3();
-  const elevation = 19; // degrees above the horizon
-  const azimuth = 135;
-  const phi = THREE.MathUtils.degToRad(90 - elevation);
-  const theta = THREE.MathUtils.degToRad(azimuth);
-  sunDir.setFromSphericalCoords(1, phi, theta);
-  u.sunPosition.value.copy(sunDir);
-
-  // Lights aligned to the sun.
   const sunLight = new THREE.DirectionalLight(0xffe2b0, 3.3);
-  sunLight.position.copy(sunDir).multiplyScalar(900);
   sunLight.castShadow = true;
   sunLight.shadow.mapSize.set(2048, 2048);
   const sc = sunLight.shadow.camera;
@@ -52,11 +42,37 @@ export function createScene({ canvas }) {
   sunLight.shadow.bias = -0.0004;
   sunLight.shadow.normalBias = 0.6;
   scene.add(sunLight, sunLight.target);
-  scene.add(new THREE.HemisphereLight(0xcdd9ee, 0x5a513a, 0.55));
+  const hemi = new THREE.HemisphereLight(0xcdd9ee, 0x5a513a, 0.55);
+  scene.add(hemi);
 
-  // Fog tuned to the horizon haze so distant terrain melts into the sky.
-  const haze = new THREE.Color(0xd6d2c6);
-  scene.fog = new THREE.Fog(haze, 3000, 28000);
+  scene.fog = new THREE.Fog(new THREE.Color(0xd6d2c6), 3000, 28000);
+
+  const FOG_NIGHT = new THREE.Color(0x0e1320);
+  const FOG_DUSK = new THREE.Color(0xd6975a);
+  const FOG_DAY = new THREE.Color(0xd6d2c6);
+  const _f = new THREE.Color();
+  const clamp = THREE.MathUtils.clamp;
+
+  // Set the sun by elevation/azimuth and grade lights/fog to match the time of day.
+  function updateSun(elev, az) {
+    const phi = THREE.MathUtils.degToRad(90 - elev);
+    const theta = THREE.MathUtils.degToRad(az);
+    sunDir.setFromSphericalCoords(1, phi, theta);
+    u.sunPosition.value.copy(sunDir);
+
+    const day = clamp(elev / 10, 0, 1); // 0 at/below horizon → 1 once up
+    const high = clamp(elev / 35, 0, 1); // 0 low → 1 near noon
+    sunLight.color.setRGB(1, 0.5 + 0.45 * high, 0.28 + 0.6 * high); // orange low → warm-white high
+    sunLight.intensity = 3.5 * day;
+    hemi.intensity = 0.08 + 0.5 * day;
+    // Lower exposure at dusk/night so the bright sky doesn't wash out; bright at noon.
+    renderer.toneMappingExposure = 0.28 + 0.27 * high;
+
+    if (elev <= 2) _f.copy(FOG_NIGHT).lerp(FOG_DUSK, clamp((elev + 6) / 8, 0, 1));
+    else _f.copy(FOG_DUSK).lerp(FOG_DAY, clamp((elev - 2) / 14, 0, 1));
+    scene.fog.color.copy(_f);
+  }
+  updateSun(19, 135);
 
   const camera = new THREE.PerspectiveCamera(60, 1, 1, 48000);
   camera.position.set(0, 600, 800);
@@ -85,5 +101,5 @@ export function createScene({ canvas }) {
   resize();
   window.addEventListener('resize', resize);
 
-  return { renderer, scene, camera, composer, resize, sunLight, sunDir };
+  return { renderer, scene, camera, composer, resize, sunLight, sunDir, updateSun };
 }

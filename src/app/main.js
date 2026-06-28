@@ -28,7 +28,7 @@ const canvas = document.createElement('canvas');
 canvas.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;display:block';
 document.getElementById('app').appendChild(canvas);
 
-const { renderer, scene, camera, composer, sunLight, sunDir } = createScene({ canvas });
+const { renderer, scene, camera, composer, sunLight, sunDir, updateSun } = createScene({ canvas });
 const worldFrame = createWorldFrame(START);
 const elevation = createElevationSource({ loadTile: loadTerrariumTile, maxZoom: ZOOM });
 const biomeSource = createBiomeSource();
@@ -51,6 +51,7 @@ let placeCell = '';
 // R recall car, Shift toggles run.
 let orbit = 0;
 let pitch = 0.35; // vertical look; raised by dragging down, lowered by dragging up
+let timeOfDay = 9.5; // hours; hold T to fast-forward the day/night cycle
 const keys = new Set();
 addEventListener('keydown', (e) => {
   if (e.repeat) return;
@@ -82,6 +83,10 @@ function frame(now) {
   const dt = Math.min(0.05, (now - prev) / 1000);
   prev = now;
   elapsed += dt;
+
+  // Day/night: time advances (hold T to speed it up); the sun grades the scene.
+  timeOfDay = (timeOfDay + dt * (keys.has('KeyT') ? 2.5 : 0.05)) % 24;
+  updateSun(Math.sin(((timeOfDay - 6) / 12) * Math.PI) * 62, 100 + (timeOfDay / 24) * 360);
 
   let forward = 0;
   if (keys.has('KeyW') || keys.has('KeyZ') || keys.has('ArrowUp')) forward += 1;
@@ -188,6 +193,8 @@ window.__we = {
   tiles,
   roads,
   buildings,
+  sunLight,
+  updateSun,
   camera,
   elevation,
   renderer,
