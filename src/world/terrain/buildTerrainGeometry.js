@@ -1,6 +1,6 @@
 import { makeProjection } from '../../core/geo/projection.js';
 import { bilinearSample } from '../../data/elevation/sample.js';
-import { biomeColor } from './biome.js';
+import { classifyBiome, biomeColorFor } from './climate.js';
 
 const TEXTURE_REPEAT_M = 16; // ground detail texture tiles every ~16 m
 
@@ -14,7 +14,6 @@ export function buildTerrainGeometry(heightmap, size, box, grid) {
   const positions = new Float32Array(grid * grid * 3);
   const colors = new Float32Array(grid * grid * 3);
   const uvs = new Float32Array(grid * grid * 2);
-  const latitude = (box.nw.lat + box.se.lat) / 2;
 
   const elevAt = (i, j) => {
     const gx = (i / (grid - 1)) * (size - 1);
@@ -49,7 +48,7 @@ export function buildTerrainGeometry(heightmap, size, box, grid) {
         (elevAt(i, Math.min(grid - 1, j + 1)) - elevAt(i, Math.max(0, j - 1))) / (2 * dz);
       const grad = Math.hypot(dEdx, dEdz);
       const slope = grad / (1 + grad);
-      const [r, g, b] = biomeColor(elev, slope, latitude);
+      const [r, g, b] = biomeColorFor(classifyBiome(lat, lon, elev), slope);
       colors[idx] = r;
       colors[idx + 1] = g;
       colors[idx + 2] = b;
