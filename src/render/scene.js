@@ -12,6 +12,8 @@ export function createScene({ canvas }) {
   // Filmic tone mapping — cohesive, cinematic color (pairs with the sky).
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.6;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   const scene = new THREE.Scene();
 
@@ -36,8 +38,19 @@ export function createScene({ canvas }) {
 
   // Lights aligned to the sun.
   const sunLight = new THREE.DirectionalLight(0xfff2e0, 3.0);
-  sunLight.position.copy(sunDir).multiplyScalar(1000);
-  scene.add(sunLight);
+  sunLight.position.copy(sunDir).multiplyScalar(900);
+  sunLight.castShadow = true;
+  sunLight.shadow.mapSize.set(2048, 2048);
+  const sc = sunLight.shadow.camera;
+  sc.left = -380;
+  sc.right = 380;
+  sc.top = 380;
+  sc.bottom = -380;
+  sc.near = 1;
+  sc.far = 2200;
+  sunLight.shadow.bias = -0.0004;
+  sunLight.shadow.normalBias = 0.6;
+  scene.add(sunLight, sunLight.target);
   scene.add(new THREE.HemisphereLight(0xbcd6ff, 0x4a5440, 0.7));
 
   // Fog tuned to the horizon haze so distant terrain melts into the sky.
@@ -66,5 +79,5 @@ export function createScene({ canvas }) {
   resize();
   window.addEventListener('resize', resize);
 
-  return { renderer, scene, camera, composer, resize, sunLight };
+  return { renderer, scene, camera, composer, resize, sunLight, sunDir };
 }

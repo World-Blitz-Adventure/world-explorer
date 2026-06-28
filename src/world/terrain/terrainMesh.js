@@ -39,7 +39,9 @@ export function createTerrainMesh({ positions, colors, uvs, indices }) {
   geom.setIndex(new THREE.BufferAttribute(indices, 1));
   geom.computeVertexNormals();
   geom.computeBoundingSphere();
-  return new THREE.Mesh(geom, TERRAIN_MATERIAL);
+  const mesh = new THREE.Mesh(geom, TERRAIN_MATERIAL);
+  mesh.receiveShadow = true;
+  return mesh;
 }
 
 export function disposeTerrainMesh(mesh) {

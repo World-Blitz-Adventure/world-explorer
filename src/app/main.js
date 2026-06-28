@@ -28,7 +28,7 @@ const canvas = document.createElement('canvas');
 canvas.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;display:block';
 document.getElementById('app').appendChild(canvas);
 
-const { renderer, scene, camera, composer, sunLight } = createScene({ canvas });
+const { renderer, scene, camera, composer, sunLight, sunDir } = createScene({ canvas });
 const worldFrame = createWorldFrame(START);
 const elevation = createElevationSource({ loadTile: loadTerrariumTile, maxZoom: ZOOM });
 const biomeSource = createBiomeSource();
@@ -111,6 +111,12 @@ function frame(now) {
   const pw = worldFrame.toWorld(loco.position);
   const target = { x: pw.x, y: lastGroundY, z: pw.z };
   water.update(elapsed, pw);
+
+  // Keep the sun's shadow frustum centred on the player as the world streams.
+  const SUN_D = 900;
+  sunLight.target.position.set(target.x, target.y, target.z);
+  sunLight.position.set(target.x + sunDir.x * SUN_D, target.y + sunDir.y * SUN_D, target.z + sunDir.z * SUN_D);
+  sunLight.target.updateMatrixWorld();
 
   // Person stands at the player when on foot.
   avatars.setPerson(target, loco.heading);

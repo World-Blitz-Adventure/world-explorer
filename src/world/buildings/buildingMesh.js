@@ -63,7 +63,10 @@ export function buildBuildingGroup(buildings, anchor, elevation) {
   });
 
   if (!geos.length) return null;
-  return new THREE.Mesh(mergeGeometries(geos), buildingMat);
+  const mesh = new THREE.Mesh(mergeGeometries(geos), buildingMat);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  return mesh;
 }
 
 export function disposeBuildingMesh(mesh) {

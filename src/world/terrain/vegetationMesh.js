@@ -112,6 +112,7 @@ function instanced(geo, items) {
   }
   inst.instanceMatrix.needsUpdate = true;
   inst.frustumCulled = false;
+  inst.castShadow = true;
   return inst;
 }
 

@@ -70,6 +70,8 @@ export function createAvatars(scene) {
   const car = makeCar();
   const person = makePerson();
   scene.add(car.group, person);
+  car.group.traverse((o) => o.isMesh && (o.castShadow = true));
+  person.traverse((o) => o.isMesh && (o.castShadow = true));
 
   let roll = 0; // accumulated wheel rotation
   let lean = 0; // smoothed body lean
