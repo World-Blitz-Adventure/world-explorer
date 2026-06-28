@@ -8,7 +8,7 @@ const WIDTH = {
 };
 
 const roadMat = new THREE.MeshLambertMaterial({
-  color: 0x35363d,
+  color: 0x55565e, // asphalt grey
   side: THREE.DoubleSide,
   polygonOffset: true,
   polygonOffsetFactor: -2, // sit on top of the terrain without z-fighting
@@ -58,8 +58,11 @@ export function buildRoadGroup(roads, anchor, elevation) {
 
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  // Roads are ~horizontal: force normals straight up so they're lit (not black).
+  const normals = new Float32Array(positions.length);
+  for (let i = 1; i < normals.length; i += 3) normals[i] = 1;
+  geo.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
   geo.setIndex(indices);
-  geo.computeVertexNormals();
   const mesh = new THREE.Mesh(geo, roadMat);
   mesh.renderOrder = 1;
   return mesh;
