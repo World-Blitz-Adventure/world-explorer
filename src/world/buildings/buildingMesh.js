@@ -4,6 +4,28 @@ import { makeProjection } from '../../core/geo/projection.js';
 
 const PALETTE = [0xb7ad9f, 0xa8a29a, 0x9fa6ad, 0xc2b8a8, 0x8f9aa0, 0xb0a496];
 const buildingMat = new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true });
+// Procedural windows: a floor × window grid on the walls (not the roof), driven
+// by world position so it works on the merged, UV-less geometry.
+buildingMat.onBeforeCompile = (shader) => {
+  shader.vertexShader = shader.vertexShader
+    .replace('#include <common>', '#include <common>\nvarying vec3 vWorldB;\nvarying vec3 vWNormalB;')
+    .replace('#include <begin_vertex>', '#include <begin_vertex>\nvWorldB = (modelMatrix * vec4(transformed, 1.0)).xyz;')
+    .replace('#include <beginnormal_vertex>', '#include <beginnormal_vertex>\nvWNormalB = normalize(mat3(modelMatrix) * objectNormal);');
+  shader.fragmentShader = shader.fragmentShader
+    .replace('#include <common>', '#include <common>\nvarying vec3 vWorldB;\nvarying vec3 vWNormalB;')
+    .replace(
+      '#include <color_fragment>',
+      `#include <color_fragment>
+      {
+        float horiz = abs(vWNormalB.x) > abs(vWNormalB.z) ? vWorldB.z : vWorldB.x;
+        float fy = fract(vWorldB.y / 3.4);
+        float fx = fract(horiz / 2.7);
+        float roof = step(0.5, vWNormalB.y);
+        float win = step(0.16, fx) * step(fx, 0.84) * step(0.30, fy) * step(fy, 0.86) * (1.0 - roof);
+        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.16, 0.20, 0.27), win * 0.78);
+      }`
+    );
+};
 
 const hash = (n) => {
   const s = Math.sin(n * 12.9898) * 43758.5453;

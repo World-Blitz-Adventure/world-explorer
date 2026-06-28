@@ -11,7 +11,7 @@ export function createScene({ canvas }) {
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
   // Filmic tone mapping — cohesive, cinematic color (pairs with the sky).
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.6;
+  renderer.toneMappingExposure = 0.5;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -63,7 +63,7 @@ export function createScene({ canvas }) {
   // Cinematic post-processing: subtle bloom + filmic output.
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.12, 0.35, 1.4); // strength, radius, threshold (only bright highlights)
+  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.08, 0.3, 1.6); // strength, radius, threshold (only the brightest)
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
 
