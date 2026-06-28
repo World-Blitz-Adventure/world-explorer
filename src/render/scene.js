@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Sky } from 'three/addons/objects/Sky.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
@@ -63,6 +64,10 @@ export function createScene({ canvas }) {
   // Cinematic post-processing: subtle bloom + filmic output.
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
+  // Ground-truth ambient occlusion — depth & contact darkening everywhere.
+  const gtao = new GTAOPass(scene, camera, 1, 1);
+  gtao.updateGtaoMaterial({ radius: 4, scale: 1.2, distanceExponent: 1, thickness: 2, samples: 16 });
+  composer.addPass(gtao);
   const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.08, 0.3, 1.6); // strength, radius, threshold (only the brightest)
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
@@ -72,6 +77,7 @@ export function createScene({ canvas }) {
     const h = canvas.clientHeight || window.innerHeight;
     renderer.setSize(w, h, false);
     composer.setSize(w, h);
+    gtao.setSize(w, h);
     bloom.setSize(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
