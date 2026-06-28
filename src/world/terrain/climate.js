@@ -5,6 +5,7 @@
 
 export const BIOME = {
   OCEAN: 'OCEAN',
+  LAKE: 'LAKE',
   DESERT: 'DESERT',
   SAVANNA: 'SAVANNA',
   GRASSLAND: 'GRASSLAND',
@@ -14,6 +15,8 @@ export const BIOME = {
   BOREAL_FOREST: 'BOREAL_FOREST',
   TUNDRA: 'TUNDRA',
   SNOW: 'SNOW',
+  WETLAND: 'WETLAND',
+  URBAN: 'URBAN',
 };
 
 // Hadley-cell moisture by latitude: wet equator, dry subtropics (deserts),
@@ -62,6 +65,9 @@ export function classifyBiome(lat, lon, elev) {
 
 const COLORS = {
   OCEAN: [0.1, 0.28, 0.4],
+  LAKE: [0.12, 0.32, 0.45],
+  WETLAND: [0.33, 0.42, 0.32],
+  URBAN: [0.5, 0.48, 0.46],
   DESERT: [0.85, 0.76, 0.52],
   SAVANNA: [0.74, 0.66, 0.36],
   GRASSLAND: [0.56, 0.63, 0.34],
@@ -75,6 +81,41 @@ const COLORS = {
 const ROCK = [0.45, 0.42, 0.4];
 const mix = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
+
+/**
+ * Biome from real WorldCover landcover combined with climate. The landcover
+ * tells us forest/grass/bare/built/water; climate tells us the *kind* (tropical
+ * vs boreal forest, desert vs tundra). Falls back to the pure climate model when
+ * no landcover is available (server off).
+ * @param {number|null|undefined} lc WorldCover class (10..100), or null
+ */
+export function biomeFrom(lc, lat, lon, elev) {
+  if (lc == null) return classifyBiome(lat, lon, elev);
+  if (elev <= 0) return BIOME.OCEAN;
+  const t = temperature(lat, elev);
+  switch (lc) {
+    case 80: return BIOME.LAKE; // inland water
+    case 70: return BIOME.SNOW;
+    case 50: return BIOME.URBAN;
+    case 60: return t > 10 ? BIOME.DESERT : t < 0 ? BIOME.SNOW : BIOME.TUNDRA; // bare
+    case 10: return t < 8 ? BIOME.BOREAL_FOREST : t < 19 ? BIOME.TEMPERATE_FOREST : BIOME.TROPICAL_FOREST;
+    case 20: return BIOME.SHRUBLAND;
+    case 30:
+    case 40: return t > 20 ? BIOME.SAVANNA : BIOME.GRASSLAND; // grass / crop
+    case 90:
+    case 95: return BIOME.WETLAND;
+    default: return classifyBiome(lat, lon, elev);
+  }
+}
+
+/** Sample a landcover grid {size, classes} at fractional tile coords u,v ∈ [0,1]. */
+export function sampleLandcover(landcover, u, v) {
+  if (!landcover) return null;
+  const N = landcover.size;
+  const col = Math.min(N - 1, Math.max(0, Math.floor(u * N)));
+  const row = Math.min(N - 1, Math.max(0, Math.floor(v * N)));
+  return landcover.classes[row * N + col];
+}
 
 /** Ground colour for a biome, with steep slopes exposing rock. */
 export function biomeColorFor(biome, slope) {

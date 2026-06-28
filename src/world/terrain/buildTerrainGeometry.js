@@ -1,6 +1,6 @@
 import { makeProjection } from '../../core/geo/projection.js';
 import { bilinearSample } from '../../data/elevation/sample.js';
-import { classifyBiome, biomeColorFor } from './climate.js';
+import { biomeFrom, biomeColorFor, sampleLandcover } from './climate.js';
 
 const TEXTURE_REPEAT_M = 16; // ground detail texture tiles every ~16 m
 
@@ -9,7 +9,7 @@ const TEXTURE_REPEAT_M = 16; // ground detail texture tiles every ~16 m
  * No world origin here: the mesh is positioned in world space by the caller,
  * so geometry survives floating-origin rebases without rebuilding.
  */
-export function buildTerrainGeometry(heightmap, size, box, grid) {
+export function buildTerrainGeometry(heightmap, size, box, grid, landcover = null) {
   const proj = makeProjection(box.nw);
   const positions = new Float32Array(grid * grid * 3);
   const colors = new Float32Array(grid * grid * 3);
@@ -48,7 +48,8 @@ export function buildTerrainGeometry(heightmap, size, box, grid) {
         (elevAt(i, Math.min(grid - 1, j + 1)) - elevAt(i, Math.max(0, j - 1))) / (2 * dz);
       const grad = Math.hypot(dEdx, dEdz);
       const slope = grad / (1 + grad);
-      const [r, g, b] = biomeColorFor(classifyBiome(lat, lon, elev), slope);
+      const lc = sampleLandcover(landcover, i / (grid - 1), j / (grid - 1));
+      const [r, g, b] = biomeColorFor(biomeFrom(lc, lat, lon, elev), slope);
       colors[idx] = r;
       colors[idx + 1] = g;
       colors[idx + 2] = b;

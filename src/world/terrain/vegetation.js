@@ -1,6 +1,6 @@
 import { makeProjection } from '../../core/geo/projection.js';
 import { bilinearSample } from '../../data/elevation/sample.js';
-import { classifyBiome, BIOME } from './climate.js';
+import { biomeFrom, sampleLandcover, BIOME } from './climate.js';
 
 function rng(n) {
   const s = Math.sin(n * 12.9898) * 43758.5453;
@@ -26,7 +26,7 @@ const MAX_SLOPE = 9;
  * acacia in savanna, sparse cactus in desert, nothing on snow/tundra/sea).
  * @returns {Array<{x,y,z, species, scale, rotY}>}
  */
-export function vegetationForTile(heightmap, size, box, attempts, seed) {
+export function vegetationForTile(heightmap, size, box, attempts, seed, landcover = null) {
   const proj = makeProjection(box.nw);
   const out = [];
   for (let i = 0; i < attempts; i++) {
@@ -39,7 +39,8 @@ export function vegetationForTile(heightmap, size, box, attempts, seed) {
 
     const lat = box.nw.lat + (box.se.lat - box.nw.lat) * v;
     const lon = box.nw.lon + (box.se.lon - box.nw.lon) * u;
-    const rule = RULES[classifyBiome(lat, lon, elev)];
+    const lc = sampleLandcover(landcover, u, v);
+    const rule = RULES[biomeFrom(lc, lat, lon, elev)];
     if (!rule) continue;
     if (rng(seed + i * 9.1) > rule.density) continue;
 

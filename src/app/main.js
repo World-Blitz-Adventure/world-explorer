@@ -1,6 +1,7 @@
 import { createScene } from '../render/scene.js';
 import { createWorldFrame } from '../core/state/index.js';
 import { createElevationSource, loadTerrariumTile } from '../data/elevation/index.js';
+import { createBiomeSource } from '../data/landcover/biomeSource.js';
 import { createTileManager } from '../world/streaming/tileManager.js';
 import { createLocomotion } from '../entities/locomotion/locomotion.js';
 import { createAvatars } from '../entities/avatars.js';
@@ -22,7 +23,8 @@ document.getElementById('app').appendChild(canvas);
 const { renderer, scene, camera, sunLight } = createScene({ canvas });
 const worldFrame = createWorldFrame(START);
 const elevation = createElevationSource({ loadTile: loadTerrariumTile, maxZoom: ZOOM });
-const tiles = createTileManager({ scene, elevation, worldFrame, zoom: ZOOM, radius: RADIUS, grid: GRID });
+const biomeSource = createBiomeSource();
+const tiles = createTileManager({ scene, elevation, biomeSource, worldFrame, zoom: ZOOM, radius: RADIUS, grid: GRID });
 const loco = createLocomotion({ start: START });
 const avatars = createAvatars(scene);
 const follow = createFollowCamera(camera);

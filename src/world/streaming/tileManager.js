@@ -25,20 +25,20 @@ function getWorker() {
   }
   return worker;
 }
-function buildGeometryAsync(heightmap, size, box, grid) {
+function buildGeometryAsync(heightmap, size, box, grid, landcover) {
   const w = getWorker();
-  if (!w) return Promise.resolve(buildTerrainGeometry(heightmap, size, box, grid));
+  if (!w) return Promise.resolve(buildTerrainGeometry(heightmap, size, box, grid, landcover));
   const id = ++seq;
   return new Promise((resolve) => {
     waiting.set(id, resolve);
     // Copy the heightmap so the transfer doesn't neuter the cached tile.
     const hm = heightmap.slice();
-    w.postMessage({ id, heightmap: hm, size, box, grid }, [hm.buffer]);
+    w.postMessage({ id, heightmap: hm, size, box, grid, landcover }, [hm.buffer]);
   });
 }
 
 /** Streams terrain tiles around the player; evicts the rest; rebases on demand. */
-export function createTileManager({ scene, elevation, worldFrame, zoom, radius, grid }) {
+export function createTileManager({ scene, elevation, biomeSource, worldFrame, zoom, radius, grid }) {
   const loaded = new Map(); // key -> { mesh, veg }
   const inflight = new Set();
   const keyFor = (t) => `${t.z}/${t.x}/${t.y}`;
@@ -49,17 +49,18 @@ export function createTileManager({ scene, elevation, worldFrame, zoom, radius, 
     inflight.add(key);
     try {
       const { size, heightmap } = await elevation.getTile(t.z, t.x, t.y);
+      const landcover = biomeSource ? await biomeSource.getTile(t.z, t.x, t.y) : null;
       const nw = lonLatForTile(t.x, t.y, t.z);
       const se = lonLatForTile(t.x + 1, t.y + 1, t.z);
       const box = { nw, se };
-      const geo = await buildGeometryAsync(heightmap, size, box, grid);
+      const geo = await buildGeometryAsync(heightmap, size, box, grid, landcover);
       if (loaded.has(key)) return; // raced; keep the existing one
 
       const mesh = createTerrainMesh(geo);
       const wp = worldFrame.toWorld(nw);
       mesh.position.set(wp.x, wp.y, wp.z);
 
-      const vegList = vegetationForTile(heightmap, size, box, VEG_ATTEMPTS, t.x * 1000 + t.y);
+      const vegList = vegetationForTile(heightmap, size, box, VEG_ATTEMPTS, t.x * 1000 + t.y, landcover);
       const veg = createVegetationGroup(vegList);
       veg.position.copy(mesh.position);
 

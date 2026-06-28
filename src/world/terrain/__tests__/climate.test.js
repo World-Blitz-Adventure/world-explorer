@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { classifyBiome, BIOME } from '../climate.js';
+import { classifyBiome, biomeFrom, BIOME } from '../climate.js';
 
 describe('climate / biomes', () => {
   it('reads the iconic regions right', () => {
@@ -25,5 +25,14 @@ describe('climate / biomes', () => {
 
   it('gives conifer (boreal) forest on mid-elevation Alps', () => {
     expect(classifyBiome(46, 8, 1500)).toBe(BIOME.BOREAL_FOREST);
+  });
+
+  it('combines real landcover with climate (biomeFrom)', () => {
+    expect(biomeFrom(50, 43.7, 7.3, 10)).toBe(BIOME.URBAN); // built city
+    expect(biomeFrom(10, 0, 20, 100)).toBe(BIOME.TROPICAL_FOREST); // tree + hot
+    expect(biomeFrom(10, 60, -110, 200)).toBe(BIOME.BOREAL_FOREST); // tree + cold
+    expect(biomeFrom(60, 24, 15, 300)).toBe(BIOME.DESERT); // bare + hot
+    expect(biomeFrom(80, 46, 8, 400)).toBe(BIOME.LAKE); // inland water
+    expect(biomeFrom(null, 24, 15, 300)).toBe(BIOME.DESERT); // falls back to climate
   });
 });
