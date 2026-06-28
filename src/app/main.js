@@ -5,7 +5,9 @@ import { haversine } from '../core/geo/index.js';
 import { createWorldFrame } from '../core/state/index.js';
 import { createElevationSource, loadTerrariumTile } from '../data/elevation/index.js';
 import { createBiomeSource } from '../data/landcover/biomeSource.js';
+import { createRoadSource } from '../data/osm/roadSource.js';
 import { createTileManager } from '../world/streaming/tileManager.js';
+import { createRoadManager } from '../world/streaming/roadManager.js';
 import { createLocomotion } from '../entities/locomotion/locomotion.js';
 import { createAvatars } from '../entities/avatars.js';
 import { createFollowCamera } from '../entities/camera/followCamera.js';
@@ -28,6 +30,8 @@ const worldFrame = createWorldFrame(START);
 const elevation = createElevationSource({ loadTile: loadTerrariumTile, maxZoom: ZOOM });
 const biomeSource = createBiomeSource();
 const tiles = createTileManager({ scene, elevation, biomeSource, worldFrame, zoom: ZOOM, radius: RADIUS, grid: GRID });
+const roadSource = createRoadSource();
+const roads = createRoadManager({ scene, roadSource, elevation, worldFrame, zoom: ZOOM, radius: 1 });
 const loco = createLocomotion({ start: START });
 const avatars = createAvatars(scene);
 const follow = createFollowCamera(camera);
@@ -84,9 +88,11 @@ function frame(now) {
   prevPos.lon = loco.position.lon;
 
   tiles.update(loco.position);
+  roads.update(loco.position);
   const shift = worldFrame.maybeRebase(loco.position);
   if (shift) {
     tiles.applyRebase(shift);
+    roads.applyRebase(shift);
     follow.shift(shift);
   }
 
@@ -131,6 +137,7 @@ requestAnimationFrame(frame);
 window.__we = {
   loco,
   tiles,
+  roads,
   camera,
   elevation,
   renderer,
