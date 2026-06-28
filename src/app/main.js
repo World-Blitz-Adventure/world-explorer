@@ -14,15 +14,14 @@ import { createLocomotion } from '../entities/locomotion/locomotion.js';
 import { createAvatars } from '../entities/avatars.js';
 import { createFollowCamera } from '../entities/camera/followCamera.js';
 import { createWater } from '../world/water.js';
+import { createStartScreen } from './startScreen.js';
 
-// Temporary demo start at Nice (Côte d'Azur) — Mediterranean sea ahead, Alps
-// behind, so both the water and the relief are in view. The real start point
-// (geolocation / your own choice) arrives with the start-anywhere layer.
-const START = { lat: 43.695, lon: 7.265 };
 const ZOOM = 13;
 const RADIUS = 4; // wider so the open sea loads around coastal demos
 const GRID = 113;
 
+/** Boot the world at a chosen start point (lat/lon). */
+async function startWorld(START) {
 const canvas = document.createElement('canvas');
 canvas.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;display:block';
 document.getElementById('app').appendChild(canvas);
@@ -155,3 +154,7 @@ window.__we = {
   },
   renderOnce: () => renderer.render(scene, camera),
 };
+}
+
+// Choose where on Earth to begin, then boot the world there.
+createStartScreen((loc) => startWorld(loc));
