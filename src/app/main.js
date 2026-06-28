@@ -99,6 +99,7 @@ function frame(now) {
   // Person stands at the player when on foot.
   avatars.setPerson(target, loco.heading);
   avatars.showPerson(!loco.inCar);
+  avatars.animatePerson({ speed: loco.inCar ? 0 : Math.abs(loco.speed), dt });
 
   // Car sits at its own position when left behind, or at the player while driving.
   const carLL = loco.inCar ? loco.position : loco.car;
@@ -106,6 +107,7 @@ function frame(now) {
   const carGroundY = elevation.heightAtCached(carLL.lat, carLL.lon);
   const cw = worldFrame.toWorld(carLL);
   avatars.setCar({ x: cw.x, y: carGroundY != null ? carGroundY : lastGroundY, z: cw.z }, carHeading);
+  avatars.animateCar({ speed: loco.inCar ? loco.speed : 0, steer: loco.inCar ? turn : 0, dt });
 
   follow.update({ target, headingRad: loco.heading, mode: loco.mode, groundY: lastGroundY, orbit, pitch, dt });
 
