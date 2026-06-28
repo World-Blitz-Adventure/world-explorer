@@ -95,13 +95,17 @@ function frame(now) {
 }
 requestAnimationFrame(frame);
 
-// Surface state for verification.
+// Surface state for verification (incl. a manual render to inspect when the
+// tab's rAF loop is throttled in the background).
 window.__we = {
   loco,
   tiles,
   camera,
   elevation,
+  renderer,
+  scene,
   get groundY() {
     return lastGroundY;
   },
+  renderOnce: () => renderer.render(scene, camera),
 };
